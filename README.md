@@ -5,12 +5,12 @@ clarinet reed case. The default preset uses the publicly listed exterior body
 envelope of a Behn Clarinet Premium 20 case: **1.50 x 4.00 x 4.00 in**
 (38.1 x 101.6 x 101.6 mm).
 
-This is an original parametric implementation, not a dimensional copy of
-Behn's unpublished internal geometry. Behn publicly identifies PLA, an
-airtight rubber-gasket closure, perforated/railed trays, magnetic tray
-retention in Premium models, and 72% Boveda packs. Those verified traits are
-represented here; unpublished wall, rail, hinge, gasket-channel, and magnet
-dimensions are clearly labeled engineering starting values.
+The tray now implements the architecture disclosed in Behn's active US Patent
+US12103755B2: two-sided reed platforms, five guide-wall passages per face, an
+internal humidity-pack recess with end slot and finger indent, three-column
+ventilation grids, two flat longitudinal stock rails per passage, one aligned
+elastic-band notch, and side-wall magnetic stacking apertures. The patent does not publish millimeter dimensions,
+so those values are parametric fits rather than claimed factory measurements.
 
 ## Quick start
 
@@ -45,14 +45,15 @@ openscad -o build/base.stl \
 
 - 1 x base shell
 - 1 x lid shell
-- 4 x ventilated reed plate (5 reeds each in the default preset)
-- 4 x TPU retainer strip (optional; silicone bands also work)
+- 4 x patented-layout tray face (two per complete tray)
+- 2 x humidity-pack tray core (one per complete tray)
+- 4 x small elastic bands (two wrapped around each double-sided tray)
 - 1 x hinge pin, or use 1.75 mm filament / metal rod
 - 1 x removable front latch clip (optional; closure magnets are supported)
 - calibration coupons for fit, gasket compression, and magnets
 
-The assembly preview uses all four reed plates. For printing, export one plate
-and one retainer strip, then set quantity in the slicer.
+Each complete 10-reed tray is assembled from two identical printed faces and
+one printed core. Two complete trays magnetically stack for 20 reeds.
 
 ## Where to edit
 
@@ -64,8 +65,8 @@ All normal design changes live in `src/config.scad`. Select a preset with the
 - `size60_studio`: 151 x 124 x 48 mm development envelope for the Size 60 pack
   (133.35 x 88.9 mm), 28 reeds.
 
-Start with `printer_clearance`, `gasket_compression`, `wall`, and
-`tray_side_gap`. The geometry modules should usually not need editing.
+Start with `printer_clearance`, `gasket_compression`, `wall`,
+`tray_side_gap`, and the actual dimensions of your reeds and humidity packs.
 
 ## Important engineering note
 

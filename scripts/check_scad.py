@@ -66,8 +66,8 @@ def main() -> int:
         errors.extend(check_includes(path, clean))
 
     required = {
-        "base_shell", "lid_shell", "reed_plate", "retainer_strip",
-        "hinge_pin", "latch_clip", "render_selected",
+        "base_shell", "lid_shell", "behn_tray_face", "behn_tray_core",
+        "behn_tray", "hinge_pin", "latch_clip", "render_selected",
     }
     corpus = "\n".join(path.read_text(encoding="utf-8") for path in files)
     for module in sorted(required):
@@ -86,4 +86,3 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-

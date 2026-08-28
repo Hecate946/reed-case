@@ -1,7 +1,7 @@
 OPENSCAD ?= openscad
 SOURCE := src/export.scad
 BUILD := build
-PARTS := base lid reed_plate retainer_strip hinge_pin latch_clip gasket_coupon tolerance_coupon assembly
+PARTS := base lid behn_tray_face behn_tray_core hinge_pin latch_clip gasket_coupon tolerance_coupon assembly
 
 .PHONY: help check preview stl stl-size60 clean
 
@@ -23,4 +23,3 @@ stl-size60: check ## Export all Size-60 printable parts
 
 clean: ## Remove generated files
 	@target="$(CURDIR)/$(BUILD)"; case "$$target" in "$(CURDIR)/build") rm -rf -- "$$target" ;; *) echo "Refusing unsafe clean target"; exit 1 ;; esac
-

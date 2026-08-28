@@ -45,9 +45,10 @@ manufacturer dimension. Measure your actual pack and update `boveda_h`.
 
 ## Original engineering assumptions
 
-Behn does not publicly publish its internal wall thickness, rail profile,
-gasket-groove dimensions, hinge dimensions, tolerances, magnet sizes, or exact
-tray construction. This repository intentionally does not claim otherwise.
+Behn does not publish millimeter dimensions for its wall thickness, rail
+profile, gasket groove, hinge, tolerances, magnets, or tray components. Patent
+US12103755B2 does, however, disclose the tray's component relationships and
+functional geometry; the code follows those disclosed relationships.
 
 The following are independent starting values and should be prototyped:
 
@@ -62,10 +63,11 @@ The following are independent starting values and should be prototyped:
 | Hinge pin | 1.75 mm filament/rod |
 | Reed envelope | 72 x 14 x 3.25 mm |
 
-## Capacity layout
+## Patented tray layout
 
-The original layout uses four removable perforated plates. Each default plate
-holds five reeds, two plates stack in each shell half, and each half has a
-humidity pack beneath the plates. Thus 4 x 5 = 20 reeds without narrowing the
-lanes below the 14 mm reed design envelope. The Size-60 preset uses seven reeds
-per plate for a 28-reed development case.
+One complete tray has two opposite platforms with five passages on each face,
+so it carries ten Bb/Eb reeds. A humidity pack slides into the recess between
+the platforms. Two complete trays stack magnetically for twenty reeds. The
+Size-60 development preset uses seven passages on each face for 28 reeds.
+
+Patent source: https://patents.google.com/patent/US12103755B2/en

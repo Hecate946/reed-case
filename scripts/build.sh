@@ -16,7 +16,7 @@ project_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 output_dir="$project_dir/build/$preset_name"
 mkdir -p "$output_dir"
 
-parts=(base lid reed_plate retainer_strip hinge_pin latch_clip gasket_coupon tolerance_coupon)
+parts=(base lid behn_tray_face behn_tray_core hinge_pin latch_clip gasket_coupon tolerance_coupon)
 for part_name in "${parts[@]}"; do
   echo "Exporting $part_name ($preset_name)"
   openscad \
@@ -27,4 +27,3 @@ for part_name in "${parts[@]}"; do
 done
 
 echo "STLs written to $output_dir"
-

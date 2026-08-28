@@ -7,14 +7,14 @@
    produces four graduated bores from 0.10 to 0.40 mm diametral clearance.
 3. Print `gasket_coupon.stl`, insert 2 mm silicone cord, and clamp two coupons
    face-to-face. Look for even contact without crushing the cord flat.
-4. Put your actual reed and humidity pack on a printed plate or 1:1 paper
-   outline before committing to both shells.
+4. Put your actual reed and humidity pack on a printed tray face/core or 1:1
+   paper outline before committing to both shells.
 
 ## 2. Print orientation
 
 - Base and lid: outside face on the bed, cup opening upward.
-- Reed plate: flat face on the bed, rails upward.
-- TPU strip: flat on the bed.
+- Tray face: platform on the bed, guide walls and rails upward.
+- Tray core: either broad face on the bed.
 - Hinge pin: vertical gives the best roundness, but a metal rod is stronger.
 - Latch clip: front face on the bed; use a brim if needed.
 
@@ -29,14 +29,19 @@ poorly, use a small local support blocker/painted support just under the hinge.
 4. Verify the case rims meet evenly before adding magnets or gasket.
 5. Test the latch clip. Increase `latch_clearance` if it requires force.
 
-## 4. Magnets and trays
+## 4. Assemble the patented-layout trays
 
-1. Mark every magnet's north face before adhesive is opened.
-2. Establish one polarity map and test the entire stack dry.
-3. Glue shell magnets first, then use them to orient plate magnets.
-4. Keep adhesive below the pocket rim. Let it cure fully outside the closed
-   reed case.
-5. Install one Boveda pack in each shell guide, then stack two plates over it.
+1. Each complete tray uses two identical faces and one central core.
+2. Dry-align the flat back of one face to each broad side of the core. The
+   curved finger indents must align with the core's humidity-pack slot.
+3. Bond or mechanically fasten the faces to the core without obstructing any
+   ventilation aperture or the pack slot.
+4. Mark every magnet's north face before adhesive is opened. Opposing tray
+   faces must attract when the two completed trays are stacked.
+5. Keep adhesive below the aperture rim and let it cure outside the case.
+6. Slide one Boveda pack into each core recess.
+7. Place five reeds in the guide-wall passages on each face. Wrap two thin
+   elastic bands completely around the tray through the aligned wall notches.
 
 ## 5. Gasket
 
@@ -67,4 +72,3 @@ This is instrument storage, not a pressure vessel or food-safe container.
 Use sacrificial/low-value reeds first. Boveda recommends Size 8 at 72% for
 less-active storage and Size 8 at 84% for same-day active use. Do not combine
 different RH packs or another humidifier in the same case.
-

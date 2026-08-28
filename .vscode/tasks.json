@@ -1,0 +1,27 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "OpenSCAD: check",
+      "type": "shell",
+      "command": "make check",
+      "group": "test",
+      "problemMatcher": []
+    },
+    {
+      "label": "OpenSCAD: export default STLs",
+      "type": "shell",
+      "command": "make stl",
+      "group": "build",
+      "problemMatcher": []
+    },
+    {
+      "label": "OpenSCAD: export Size 60 STLs",
+      "type": "shell",
+      "command": "make stl-size60",
+      "group": "build",
+      "problemMatcher": []
+    }
+  ]
+}
+

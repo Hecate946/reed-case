@@ -56,12 +56,7 @@ module base_shell() {
                              max(corner_r - seal_inset, 1.0),
                              seal_tongue_w,
                              seal_tongue_h);
-            translate([0, body_y, 0]) {
-                shell_pack_guides();
-                shell_tray_magnet_towers();
-            }
         }
-        translate([0, body_y, 0]) shell_tray_magnet_pockets();
         base_hinge_relief();
         // Small underside relief reduces elephant-foot interference.
         translate([0, body_y, -epsilon])
@@ -80,12 +75,7 @@ module lid_shell() {
                 rounded_cup(case_w, body_d, lid_h, corner_r, wall, floor_t);
             lid_hinge();
             latch_lugs(lid_h);
-            translate([0, body_y, 0]) {
-                shell_pack_guides();
-                shell_tray_magnet_towers();
-            }
         }
-        translate([0, body_y, 0]) shell_tray_magnet_pockets();
         lid_hinge_relief();
         // Gasket groove opens at the rim in print orientation.
         translate([0, body_y, lid_h - gasket_groove_d])

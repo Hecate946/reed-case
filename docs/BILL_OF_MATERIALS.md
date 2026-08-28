@@ -6,13 +6,14 @@
 |---|---:|---|---|
 | Base shell | 1 | PLA, printed | Public Behn material; prototype first |
 | Lid shell | 1 | PLA, printed | PETG/ASA is a later heat-resistant option |
-| Reed plates | 4 | PLA or PETG, printed | Five reeds per plate |
-| Retainer strips | 4 | TPU 95A, printed | Or thin silicone elastic bands |
+| Tray faces | 4 | PLA or PETG, printed | Two faces per 10-reed tray |
+| Tray cores | 2 | PLA or PETG, printed | Holds one humidity pack internally |
+| Elastic bands | 4 | Thin silicone/latex elastic | Two wrapped around each tray |
 | Gasket cord | ~0.38 m | 2 mm closed-cell silicone | Join with silicone adhesive |
-| Tray magnets | 40 max | 6 x 2 mm neodymium discs | 4 per shell + 8 per plate; fewer can work |
+| Tray magnets | 16 max | 6 x 2 mm neodymium discs | 4 per tray face; verify polarity before bonding |
 | Hinge pin | 1 | 1.75 mm filament or metal rod | Cut only after trial assembly |
 | Front latch | 1 | PLA/PETG, printed | Optional removable backup latch |
-| Humidity packs | 2 | Boveda Size 8, 72% RH | One under each two-plate stack |
+| Humidity packs | 2 | Boveda Size 8, 72% RH | One inside each double-sided tray |
 | Adhesive | as needed | CA or epoxy | Keep away from gasket sealing face |
 
 ## Recommended print settings
@@ -20,8 +21,8 @@
 | Part | Layer | Walls | Infill | Material |
 |---|---:|---:|---:|---|
 | Shells | 0.16-0.20 mm | 5-6 | 25-35% | PLA prototype |
-| Reed plates | 0.16 mm | 4 | 25% | PLA/PETG |
-| Retainers | 0.16-0.20 mm | 3 | 100% | TPU 95A |
+| Tray faces | 0.16 mm | 4 | 25% | PLA/PETG |
+| Tray cores | 0.16-0.20 mm | 4 | 25% | PLA/PETG |
 | Coupons | 0.20 mm | same as shell | 25% | same as shell |
 
 Print the gasket and magnet coupons first. Magnets are brittle and powerful;
