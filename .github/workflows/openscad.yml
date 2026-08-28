@@ -1,0 +1,20 @@
+name: OpenSCAD validation
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install OpenSCAD
+        run: sudo apt-get update && sudo apt-get install -y openscad
+      - name: Static checks
+        run: make check
+      - name: Compile default assembly
+        run: make preview
+      - name: Export printable parts
+        run: make stl
+
