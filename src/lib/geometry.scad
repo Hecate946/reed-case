@@ -28,6 +28,26 @@ module rounded_cup(w, d, h, r, wall_t, bottom_t) {
     }
 }
 
+module top_chamfered_extrude(height, chamfer = 0.20, steps = 3) {
+    // Cheap printable micro-chamfer built as a few 2D inset layers. This keeps
+    // exact STL rendering tractable in OpenSCAD 2021 (a 3D hull here is very
+    // expensive once the tray contains hundreds of ventilation apertures).
+    assert(height > 0);
+    c = min(max(chamfer, 0), height / 2);
+    n = max(steps, 1);
+    if (c <= 0)
+        linear_extrude(height = height) children();
+    else {
+        base_h = height - c;
+        layer_h = c / n;
+        linear_extrude(height = base_h + epsilon) children();
+        for (i = [0 : n - 1])
+            translate([0, 0, base_h + i * layer_h - epsilon])
+                linear_extrude(height = layer_h + 2 * epsilon)
+                    offset(delta = -c * (i + 1) / n) children();
+    }
+}
+
 module capsule_2d(length, width) {
     hull() {
         translate([-(length - width) / 2, 0]) circle(d = width);

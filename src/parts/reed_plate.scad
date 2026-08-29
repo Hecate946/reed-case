@@ -12,19 +12,21 @@
 include <../lib/geometry.scad>
 include <../lib/hardware.scad>
 
-function guide_t(i) = i == 0 || i == reeds_per_face
-                    ? tray_outer_guide_t
-                    : tray_guide_t;
+// i=0 and i=reeds_per_face are virtual passage boundaries supplied by the
+// structural side borders, not separate divider walls. Only indices 1..N-1
+// have a physical 1.10 mm guide. This removes the redundant outer divider on
+// each side and moves the edge wall inward by exactly its former thickness.
+function guide_t(i) = i == 0 || i == reeds_per_face ? 0 : tray_guide_t;
 function guide_x(i) = i == 0
-                    ? -tray_guide_span / 2
+                    ? -tray_passage_field_w / 2
                     : i == reeds_per_face
-                    ? tray_guide_span / 2
-                    : -tray_guide_span / 2 +
-                      reed_slot_clear_w +
-                      (tray_outer_guide_t + tray_guide_t) / 2 +
-                      (i - 1) * (reed_slot_clear_w + tray_guide_t);
-function lane_x(i) = (guide_x(i) + guide_t(i) / 2 +
-                      guide_x(i + 1) - guide_t(i + 1) / 2) / 2;
+                    ? tray_passage_field_w / 2
+                    : -tray_passage_field_w / 2 +
+                      i * reed_slot_clear_w +
+                      (i - 0.5) * tray_guide_t;
+function lane_x(i) = -tray_passage_field_w / 2 +
+                     reed_slot_clear_w / 2 +
+                     i * (reed_slot_clear_w + tray_guide_t);
 function aperture_column_pitch() = min(tray_air_column_pitch,
                                        reed_slot_clear_w / 3.7);
 // The reed heel line, and therefore the tip stop, is now referenced directly
@@ -97,7 +99,7 @@ module patent_ventilation_apertures_2d(hole_d = tray_air_hole_d) {
         x_offset = (col - (tray_air_columns - 1) / 2) *
                    aperture_column_pitch();
         translate([lane_x(i) + x_offset, aperture_y(row)])
-            circle(d = hole_d, $fn = $preview ? 20 : 40);
+            circle(d = hole_d, $fn = $preview ? 16 : 24);
     }
 }
 
@@ -148,30 +150,86 @@ module patent_lane_number_engraving(first_lane = 1) {
                                  $fn = $preview ? 16 : 32);
 }
 
-module patent_perforated_layer(z, h, hole_d) {
+function rounded_rect_arc_points(cx, cy, r, a0, a1, steps) =
+    [for (i = [0 : steps - 1])
+        let (a = a0 + (a1 - a0) * i / max(steps - 1, 1))
+        [cx + r * cos(a), cy + r * sin(a)]];
+
+function rounded_rect_points(w, d, r, steps) = concat(
+    rounded_rect_arc_points( w / 2 - r,  d / 2 - r, r,   0,  90, steps),
+    rounded_rect_arc_points(-w / 2 + r,  d / 2 - r, r,  90, 180, steps),
+    rounded_rect_arc_points(-w / 2 + r, -d / 2 + r, r, 180, 270, steps),
+    rounded_rect_arc_points( w / 2 - r, -d / 2 + r, r, 270, 360, steps)
+);
+
+function clockwise_circle_points(cx, cy, r, steps) =
+    [for (i = [0 : steps - 1])
+        let (a = -360 * i / steps)
+        [cx + r * cos(a), cy + r * sin(a)]];
+
+module patent_perforated_polygon_2d(hole_d, outline_inset = 0) {
+    // One polygon with 330 hole paths is dramatically faster to STL-render
+    // than asking CGAL to perform hundreds of separate circle differences.
+    // Outer path is CCW; hole paths are CW, so OpenSCAD treats them as holes.
+    outer_w = tray_body_w - 2 * outline_inset;
+    outer_d = tray_d - 2 * outline_inset;
+    outer_r = max(tray_body_corner_r - outline_inset, 0.10);
+    corner_steps = $preview ? 8 : 16;
+    hole_steps = $preview ? 16 : 24;
+    outer = rounded_rect_points(outer_w, outer_d, outer_r, corner_steps);
+    centers = [
+        for (i = [0 : reeds_per_face - 1],
+             row = [0 : tray_air_rows - 1],
+             col = [0 : tray_air_columns - 1])
+            [lane_x(i) +
+             (col - (tray_air_columns - 1) / 2) * aperture_column_pitch(),
+             aperture_y(row)]
+    ];
+    holes = [for (c = centers)
+        each clockwise_circle_points(c[0], c[1], hole_d / 2, hole_steps)];
+    points = concat(outer, holes);
+    paths = concat(
+        [[for (i = [0 : len(outer) - 1]) i]],
+        [for (k = [0 : len(centers) - 1])
+            [for (j = [0 : hole_steps - 1])
+                len(outer) + k * hole_steps + j]]
+    );
+
+    polygon(points = points, paths = paths);
+}
+
+module patent_perforated_layer(z, h, hole_d, outline_inset = 0) {
     translate([0, 0, z])
-        linear_extrude(height = h)
-        difference() {
-            patent_face_outline_2d();
-            patent_ventilation_apertures_2d(hole_d);
-            patent_front_plane_cutout_2d();
-        }
+        linear_extrude(height = h, convexity = 10)
+            if (!front_plane_cutout_enable)
+                patent_perforated_polygon_2d(hole_d, outline_inset);
+            else
+                // Legacy optional cutout path; kept for the config flag.
+                difference() {
+                    offset(delta = -outline_inset) patent_face_outline_2d();
+                    union() {
+                        patent_ventilation_apertures_2d(hole_d);
+                        patent_front_plane_cutout_2d();
+                    }
+                }
 }
 
 module patent_perforated_platform() {
-    // A three-layer micro-chamfer softens the reed-facing aperture rims. This
+    // A stepped micro-chamfer softens the reed-facing aperture rims. This
     // remains a small set of 2D extrusions, avoiding the enormous CSG tree
     // produced by hundreds of individual 3D fillets in OpenSCAD 2021.
     relief_step_h = tray_air_edge_relief_h / tray_air_edge_steps;
     core_h = tray_face_t - tray_air_edge_relief_h;
 
     union() {
-        patent_perforated_layer(0, core_h + epsilon, tray_air_hole_d);
+        patent_perforated_layer(0, core_h + epsilon, tray_air_hole_d, 0);
         for (step = [0 : tray_air_edge_steps - 1])
             patent_perforated_layer(
                 core_h + step * relief_step_h - epsilon,
                 relief_step_h + 2 * epsilon,
                 tray_air_hole_d + 2 * tray_air_edge_relief *
+                    (step + 1) / tray_air_edge_steps,
+                tray_platform_top_chamfer *
                     (step + 1) / tray_air_edge_steps
             );
     }
@@ -186,27 +244,30 @@ module patent_guide_walls() {
     end_y = tip_stop_inner_y() + epsilon;
 
     translate([0, 0, tray_face_t])
-        linear_extrude(height = tray_guide_h)
-            intersection() {
-                patent_face_outline_2d();
-                union()
-                    for (i = [0 : reeds_per_face])
+        union()
+            // The side borders are the outer walls; only make the N-1
+            // dividers that actually separate adjacent reed passages.
+            for (i = [1 : reeds_per_face - 1])
+                intersection() {
+                    linear_extrude(height = tray_guide_h)
+                        patent_face_outline_2d();
+                    top_chamfered_extrude(tray_guide_h,
+                                          tray_wall_top_chamfer)
                         translate([guide_x(i), (start_y + end_y) / 2])
                             square([guide_t(i), end_y - start_y],
                                    center = true);
-            }
+                }
 }
 
 module patent_guide_end_runout() {
     // Cutting solid that takes every raised feature down to the floor over
     // the last guide_end_taper millimetres of the open heel end.
     //
-    // The profile is a quarter arc that is tangent to the top of the wall
-    // inboard and meets the floor VERTICALLY at the tray edge. That leaves a
-    // rounded nose. The earlier profile was the other way round - tangent to
-    // the floor - which faired out to a feather edge that was both fragile
-    // and unprintable. Built as a polygon in (z, y) and swept along X, which
-    // is one cheap extrusion for the whole tray.
+    // The quarter-round is intentionally oriented so the visible profile is
+    // tangent to the FLOOR at the open heel and turns upward into the full
+    // wall inboard. This is the opposite curvature from the previous
+    // prototype: instead of looking like a rounded nose dropping into the
+    // opening, the wall now rises smoothly out of the reed plane.
     //
     // guide_end_taper == tray_guide_h gives a true circular quarter round.
     L = guide_end_taper;
@@ -226,7 +287,7 @@ module patent_guide_end_runout() {
                          [z_top, y0 + L]],
                         [for (s = [steps : -1 : 0])
                             let (u = s / steps)
-                            [z0 + h * sqrt(max(1 - (1 - u) * (1 - u), 0)),
+                            [z0 + h * (1 - sqrt(max(1 - u * u, 0))),
                              y0 + L * u]],
                         [[z0 - 1.0, y0]]
                     ));
@@ -267,42 +328,40 @@ module patent_reed_tip_stop() {
            "Tip border is too thin to carry the engraved numbers");
 
     translate([0, 0, tray_face_t])
-        linear_extrude(height = tray_guide_h)
-            intersection() {
+        intersection() {
+            linear_extrude(height = tray_guide_h)
                 patent_face_outline_2d();
+            top_chamfered_extrude(tray_guide_h, tray_wall_top_chamfer)
                 translate([0, inner_y + tray_border_w / 2 + epsilon])
                     square([tray_body_w + 20,
                             tray_border_w + 2 * epsilon], center = true);
-            }
+        }
 }
 
 module patent_outer_side_walls() {
-    // Two plain rectangular strips filling the space between the outer guide
-    // wall and the edge of the body, trimmed to the body outline so the ends
-    // pick up the corner radius. This replaces a hull of four circles: the
-    // rounded stadium shape it produced was doing nothing the corner radius
-    // was not already doing, and it read as a bulge rather than a border.
-    //
-    // The magnet pockets are cut into these frames rather than into ears
-    // hanging off the outline, so the frame has to be at least
-    // tray_magnet_d + 2 * magnet_wall_min wide. config.scad asserts that.
-    outer_guide_face = tray_guide_span / 2 + tray_outer_guide_t / 2;
-    side_frame_w = tray_body_w / 2 - outer_guide_face;
+    // The structural side frames now ARE the outer walls of lanes 1 and N.
+    // Their inner faces sit exactly where the inner faces of the old outer
+    // divider walls sat. That removes one redundant 1.60 mm wall per side
+    // while preserving lane width, magnet protection and the rounded outline.
+    passage_edge = tray_passage_field_w / 2;
+    side_frame_w = tray_body_w / 2 - passage_edge;
 
     assert(side_frame_w > 0,
-           "Guide span leaves no room for a side frame");
+           "Passage field leaves no room for a side frame");
 
     translate([0, 0, tray_face_t])
-        linear_extrude(height = tray_guide_h)
-            intersection() {
-                patent_face_outline_2d();
-                union()
-                    for (x = [-1, 1])
-                        translate([x * (outer_guide_face +
+        union()
+            for (x = [-1, 1])
+                intersection() {
+                    linear_extrude(height = tray_guide_h)
+                        patent_face_outline_2d();
+                    top_chamfered_extrude(tray_guide_h,
+                                          tray_wall_top_chamfer)
+                        translate([x * (passage_edge +
                                         side_frame_w / 2), 0])
                             square([side_frame_w,
                                     tray_d + 2 * epsilon], center = true);
-            }
+                }
 }
 
 module patent_magnet_apertures() {
@@ -386,40 +445,57 @@ module behn_tray_core() {
     // chamfered ventilation holes, not merely wide enough for the pack.
     cavity_w = max(boveda_w + 2 * boveda_clearance,
                    2 * ventilation_field_half_w());
-    mouth_round_r = min(tray_pack_mouth_round_r,
-                        (tray_body_w - cavity_w) / 2 -
-                        tray_body_corner_r - epsilon);
+    side_rail_w = (tray_body_w - cavity_w) / 2;
+    mouth_cap_r = side_rail_w / 2;
+    cavity_start_y = -tray_d / 2 + tray_core_heel_bridge_d;
+    cap_center_y = tray_d / 2 - mouth_cap_r;
 
-    assert(mouth_round_r >= 0.5,
-           "Humidity channel leaves too little wall for a rounded mouth");
+    assert(side_rail_w >= tray_core_side_wall_min,
+           "Humidity channel leaves too little material in the core side rails");
+    assert(cap_center_y > cavity_start_y,
+           "Core is too short for a semicircular humidity-pack mouth cap");
 
-    difference() {
-        patent_platform(tray_core_h);
-        // The central channel is open at both ends. Circular reliefs at each
-        // mouth round the exposed inner corners for easier insertion.
-        translate([-cavity_w / 2,
-                   -tray_d / 2 - epsilon,
-                   -epsilon])
-            cube([cavity_w,
-                  tray_d + 2 * epsilon,
-                  tray_core_h + 2 * epsilon]);
-        for (x = [-1, 1], y = [-1, 1])
-            translate([x * cavity_w / 2,
-                       y * tray_d / 2,
-                       -epsilon])
-                // Clamp the fillet to preserve thin preset walls.
-                cylinder(r = mouth_round_r,
-                         h = tray_core_h + 2 * epsilon,
-                         $fn = $preview ? 24 : 48);
-    }
+    // Build the core positively as a U-frame instead of subtracting circular
+    // bites from a rectangular frame.  Each open leg therefore terminates in
+    // a TRUE SEMICIRCULAR CAP: the outer and inner edges have the same radius
+    // and flow continuously into one another, like ().  This avoids the old
+    // concave 'bite taken out of the corner' appearance at the pack mouth.
+    linear_extrude(height = tray_core_h, convexity = 10)
+        intersection() {
+            patent_face_outline_2d();
+            union() {
+                // Narrow heel bridge keeps the core one connected print.
+                translate([0,
+                           -tray_d / 2 + tray_core_heel_bridge_d / 2])
+                    square([tray_body_w,
+                            tray_core_heel_bridge_d], center = true);
+
+                // Two straight rails with pill/semicircular open ends.
+                for (side = [-1, 1]) {
+                    rail_x = side * (cavity_w / 2 + side_rail_w / 2);
+
+                    // Straight portion; overlaps the heel bridge slightly so
+                    // the exported STL is unequivocally one fused solid.
+                    translate([rail_x,
+                               (cavity_start_y + cap_center_y) / 2])
+                        square([side_rail_w,
+                                cap_center_y - cavity_start_y + 2 * epsilon],
+                               center = true);
+
+                    // Equal-radius cap on both sides of the rail end.
+                    translate([rail_x, cap_center_y])
+                        circle(r = mouth_cap_r,
+                               $fn = $preview ? 32 : 64);
+                }
+            }
+        }
 }
 
-// Passages 1..N. Takes the magnets.
+// Passages 1..N. Hardware pockets are identical to face B.
 module behn_tray_face_a() { behn_tray_face(1); }
 
-// Passages N+1..2N. Takes the steel discs. Same geometry otherwise, so the
-// two are one part with one number changed - but they are no longer the same
-// STL, and a tray needs one of each.
+// Passages N+1..2N. Geometry matches face A except for numbering; the final
+// magnet/steel assignment is intentionally not encoded in the printed part.
 module behn_tray_face_b() { behn_tray_face(reeds_per_face + 1); }
 
 module behn_tray() {

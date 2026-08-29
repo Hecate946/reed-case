@@ -15,6 +15,8 @@ zip -r "$OUT" . \
      ".vscode/**" \
      "exports/*" \
      "exports/**" \
+     "build/*" \
+     "build/**" \
      "*.stl" \
      "*.3mf" \
      "*.amf" \

@@ -161,17 +161,16 @@ heel end: 13.5 mm on `behn_premium20`. That is where you reach in to lift a
 reed out, so it is usable space rather than dead space, but the reed can slide
 that far back if the elastic band is off.
 
-`tray_border_w` is derived, not set. `tray_border_w_min` (3.0 mm) is the
-floor; the body width is the guide span plus that minimum each side, unless
-the humidity-pack channel needs more. On `behn_premium20` the guide span wins
-and the borders come out at exactly 3.0 mm. On `size60_studio` the Boveda 320
-channel forces a 138.35 mm body against a 111.3 mm guide span, so all three
-borders come out at 13.5 mm. They are still equal, which is the requirement,
-but that preset is carrying a wide frame for the sake of the pack. Raising
-`reeds_per_face` or narrowing the pack is what would tighten it.
+`tray_border_w` is derived, not set. `tray_border_w_min` is 6.40 mm so a
+4 x 2 mm hardware pocket can be buried in the structural side border with
+material on both sides. The left and rightmost passages now terminate directly
+at those side borders; the earlier redundant outer guide wall has been removed.
+For `behn_premium20`, this reduces the tray body from 91.9 mm to 88.7 mm wide
+without changing the 14.30 mm clear passage width. The larger `size60_studio`
+preset remains pack-width-limited.
 
-The magnet ears stay as full-height circles. They cannot be reduced to the
-sheet thickness because the pocket is deeper than the sheet.
+Magnet pockets are buried in the side borders; there are no protruding magnet
+ears in the current geometry.
 
 ## Reed envelope
 

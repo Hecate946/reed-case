@@ -68,18 +68,21 @@ tray_w = case_w - 2 * (wall + tray_side_gap);
 tray_d = body_d - 2 * (wall + tray_side_gap);
 tray_corner_r = 3.0;
 tray_face_t = 1.20;
-tray_core_h = boveda_h + 0.60;
+boveda_thickness_clearance = 0.60;
+tray_core_h = boveda_h + boveda_thickness_clearance;
+tray_pack_opening_w = boveda_w + 2 * boveda_clearance;
+tray_pack_opening_h = tray_core_h;
 tray_guide_h = 4.20;
 tray_guide_t = 1.10;
-tray_outer_guide_t = 1.60;
-// Each finished passage is 14.5 mm clear: 0.5 mm wider than the configured
-// maximum Bb clarinet reed. Guide centers are derived from this dimension.
+// Only the INTERNAL lane dividers are separate guide walls. The left and
+// rightmost reed passages terminate directly at the structural side borders;
+// there is no redundant outer divider between a passage and its edge wall.
+// This saves 1.60 mm per side versus the earlier prototype while keeping
+// every reed passage at the exact same clear width.
 reed_slot_clear_w = 14.30;
-tray_guide_span = 2 * (reed_slot_clear_w +
-                       (tray_outer_guide_t + tray_guide_t) / 2) +
-                  max(reeds_per_face - 2, 0) *
-                       (reed_slot_clear_w + tray_guide_t);
-tray_side_wall_w = (tray_w - tray_guide_span) / 2;
+tray_passage_field_w = reeds_per_face * reed_slot_clear_w +
+                       max(reeds_per_face - 1, 0) * tray_guide_t;
+tray_side_wall_w = (tray_w - tray_passage_field_w) / 2;
 tray_stack_gap = 0.25;
 // Physical Behn tray reference: 22 small apertures per column. The photograph
 // has no absolute scale, so 1.6 mm is the fitted starting diameter.
@@ -89,7 +92,9 @@ tray_air_columns = 3;
 tray_air_column_pitch = 4.30;
 tray_air_edge_relief = 0.18;   // radial softening at the reed-facing edge
 tray_air_edge_relief_h = 0.30; // printable micro-chamfer depth
-tray_air_edge_steps = 3;
+tray_air_edge_steps = 2;
+tray_platform_top_chamfer = 0.20; // soften the exposed platform rim
+tray_wall_top_chamfer = 0.20;     // soften guide/side/tip-wall top edges
 tray_reed_plane_edge_margin = 1.25;
 // Blind side-loading slot: the pack enters from the raised reed-tip-frame end
 // (+Y), travels only its own depth plus 1 mm, then contacts narrow support
@@ -99,7 +104,10 @@ tray_pack_stop_y = tray_d / 2 - tray_pack_slot_depth;
 tray_pack_seated_y = tray_d / 2 - boveda_slide_clearance - boveda_d / 2;
 tray_pack_vent_clearance = 0.25;
 tray_pack_support_w = 1.60;
-tray_pack_mouth_round_r = 2.0;
+tray_core_heel_bridge_d = 2.00; // joins core side rails behind the first vent row
+// Core mouth ends are now true semicircular caps whose radius is derived
+// automatically from the side-rail width.  No separate mouth-radius tuning
+// parameter is required.
 
 // Bb/Eb clarinet reed design envelope. Measure your own reeds before finalizing.
 // Bb and A clarinet take the same reed; no separate A-clarinet cut is made.
@@ -116,7 +124,6 @@ rail_h = 0.55;
 rail_w = 2.00;
 rail_count = 2;
 rail_rows = 11; // rails cover the lower 11 of the 22 aperture rows
-elastic_band_positions = [-0.02]; // single aligned notch shown in Fig. 4
 
 // ---------------------------------------------------------------------------
 // Reference-photograph match
@@ -167,10 +174,10 @@ elastic_band_seat_depth = 0.35;  // extra depth below the half-round
 elastic_band_row_gaps = [8.5, 11.5];
 
 // Horizontal run of the rounded end on every divider and side frame at the
-// open heel end. The profile is a quarter arc that meets the floor
-// vertically, so the wall ends in a rounded nose rather than a feather edge.
-// Equal to tray_guide_h it is a true circle; larger values stretch it into an
-// ellipse. Set to 0 for square ends.
+// open heel end. The profile is a quarter arc tangent to the reed plane at
+// the opening and turning upward into the full-height wall inboard. Equal to
+// tray_guide_h it is a true circle; larger values stretch it into an ellipse.
+// Set to 0 for square ends.
 guide_end_taper = tray_guide_h;
 
 // Floor on the width of the three closed borders. The actual figure,
@@ -185,18 +192,19 @@ guide_end_taper = tray_guide_h;
 // the border is the single biggest durability change available here.
 tray_border_w_min = 6.40;
 
-// Physical tray reference: compact magnets live in dedicated ears,
-// fully outside the clear reed passages.
+// Compact hardware pockets are buried in the side borders, fully outside
+// the clear reed passages.
 // Hardware: 4 x 2 mm N52 neodymium disc, axially magnetised, Ni-Cu-Ni
 // plated, typical tolerance +/-0.1 mm. Sold everywhere as "D4x2".
 //
-// Both faces take the SAME pocket, so a pocket accepts either the magnet or
-// a 4 x 2 mm mild steel disc of identical size. See docs/MAGNETS.md for why
-// one face gets steel rather than a second magnet.
+// Both faces take the SAME pocket, so each location can later accept either
+// a 4 x 2 mm magnet or a matching mild-steel disc. Polarity/hardware layout
+// is intentionally deferred until after the physical tray prototype.
 tray_magnet_d = 4.0;
 tray_magnet_h = 2.0;
 magnet_d_clearance = 0.20;
 magnet_h_clearance = 0.15;
+magnet_entry_chamfer = 0.15; // small lead-in; straight pocket remains 4.20 mm
 magnet_lane_clearance = 0.25;
 magnet_wall_min = 1.00;
 // Distance from each tray end to the pocket centre. Equal at both ends, so
@@ -205,16 +213,17 @@ magnet_wall_min = 1.00;
 tray_magnet_edge_inset = 12.0;
 tray_magnet_y = tray_d / 2 - tray_magnet_edge_inset;
 tray_core_side_wall_min = 1.50;
-// The body is the guide span plus a border each side, unless the humidity
-// pack needs more; on the 60-reed preset it does.
-tray_body_w = max(tray_guide_span + tray_outer_guide_t + 2 * tray_border_w_min,
+// The side borders themselves now form the outside walls of the two outer
+// reed passages. Therefore body width is simply the clear passage field plus
+// one structural/magnet border per side. The humidity-pack envelope can still
+// force a wider body on the large preset.
+tray_body_w = max(tray_passage_field_w + 2 * tray_border_w_min,
                   boveda_w + 2 * boveda_clearance +
                   2 * tray_core_side_wall_min);
 
-// Whatever the body width came out as, all three borders take the leftover
-// equally: the two side frames by construction, the reed tip border by using
-// the same figure. 3.00 mm on behn_premium20, wider on size60_studio.
-tray_border_w = (tray_body_w - tray_guide_span - tray_outer_guide_t) / 2;
+// Whatever the body width came out as, all three closed borders use this
+// width. The default is 6.40 mm so a D4x2 pocket stays protected.
+tray_border_w = (tray_body_w - tray_passage_field_w) / 2;
 
 // Centred in the side border, so the wall is the same thickness inboard and
 // outboard of the magnet. No ears, no protrusions: the tray outline is a
@@ -222,9 +231,7 @@ tray_border_w = (tray_body_w - tray_guide_span - tray_outer_guide_t) / 2;
 tray_magnet_x = (tray_body_w - tray_border_w) / 2;
 tray_body_corner_r = min(
     tray_corner_r,
-    max((tray_body_w - (boveda_w + 2 * boveda_clearance)) / 2 -
-        tray_pack_mouth_round_r - 0.25,
-        0.50)
+    max(tray_border_w - 0.50, 0.50)
 );
 
 // Hinge. The rear edge of the barrel defines the overall case depth.
@@ -254,7 +261,7 @@ assert(tray_guide_h >= rail_h + reed_max_h,
        "Guide walls must protect reeds when the trays are stacked");
 assert(reed_slot_clear_w >= reed_max_w + 0.4,
        "Reed passages need at least 0.4 mm total width clearance");
-assert(tray_side_wall_w > tray_outer_guide_t,
+assert(tray_side_wall_w > 0,
        "Configured reed passages do not fit within the tray width");
 assert(tray_border_w >= tray_border_w_min - 0.01,
        str("Borders came out at ", tray_border_w, " mm, under the ",
@@ -283,9 +290,11 @@ assert(tray_magnet_h + magnet_h_clearance < tray_face_t + tray_guide_h - 1.0,
 assert((tray_magnet_d + magnet_d_clearance) / 2 + magnet_wall_min <=
        tray_border_w / 2,
        "Magnet pocket leaves less than 1 mm around the corner tab");
+assert((tray_magnet_d + magnet_d_clearance + 2 * magnet_entry_chamfer) / 2 +
+       (magnet_wall_min - magnet_entry_chamfer) <= tray_border_w / 2,
+       "Magnet entry chamfer over-cuts the side border");
 assert(tray_magnet_x - (tray_magnet_d + magnet_d_clearance) / 2 >=
-       tray_guide_span / 2 + tray_outer_guide_t / 2 +
-       magnet_lane_clearance,
+       tray_passage_field_w / 2 + magnet_lane_clearance,
        "Magnet pocket intrudes into a reed passage");
 // reed_end_margin is now a MINIMUM on the open heel end, not a placement
 // value: the reed is located from the tip border inwards, so whatever is left
@@ -302,10 +311,14 @@ assert(!lane_numbers_enable || lane_number_depth <= 1.50,
        "Engraved passage numbers deeper than 1.5 mm weaken the tip stop");
 assert(!lane_numbers_enable || lane_number_size < reed_slot_clear_w - 2.0,
        "Passage numbers are too large for the passage width");
-assert(tray_w >= boveda_w + 2 * (tray_outer_guide_t + boveda_clearance),
+assert(tray_body_w >= boveda_w + 2 * boveda_clearance +
+                      2 * tray_core_side_wall_min,
        "Humidity pack is too wide for the tray recess");
 assert(tray_pack_stop_y > -tray_d / 2 + tray_pack_support_w,
        "Humidity-pack stop ribs need positive length");
+assert(tray_core_heel_bridge_d > 0 &&
+       tray_core_heel_bridge_d <= aperture_heel_margin + 0.01,
+       "Core heel bridge must stay behind the first ventilation row");
 
 tray_total_h = tray_core_h + 2 * (tray_face_t + tray_guide_h);
 loaded_stack_h = tray_count * tray_total_h

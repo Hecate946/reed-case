@@ -8,10 +8,9 @@
 | Lid shell | 1 | PLA, printed | PETG/ASA is a later heat-resistant option |
 | Tray faces | 4 | PLA or PETG, printed | Two faces per 10-reed tray |
 | Tray cores | 2 | PLA or PETG, printed | Holds one humidity pack internally |
-| Elastic bands | 4 | Thin silicone/latex elastic | Two wrapped around each tray |
+| Silicone O-rings | 4 final / 2 per tray | 2 mm round cross-section; prototype 60 mm ID first | Try 58/60/63 mm ID to tune preload |
 | Gasket cord | ~0.38 m | 2 mm closed-cell silicone | Join with silicone adhesive |
-| Neodymium disc magnet | 4 x 2 mm N52, axial, Ni-Cu-Ni | 4 per tray | face A pockets, buried in the side border - see docs/MAGNETS.md |
-| Mild steel disc | 4 x 2 mm | 4 per tray | face B pockets - gives orientation-independent attachment |
+| Tray hardware discs | 4 x 2 mm nominal | Up to 8 per tray | Magnet/steel mix intentionally deferred; identical pockets on both faces |
 | Hinge pin | 1 | 1.75 mm filament or metal rod | Cut only after trial assembly |
 | Front latch | 1 | PLA/PETG, printed | Optional removable backup latch |
 | Humidity packs | 2 | Boveda Size 8, 72% RH | One inside each double-sided tray |
@@ -26,9 +25,9 @@
 | Tray cores | 0.16-0.20 mm | 4 | 25% | PLA/PETG |
 | Coupons | 0.20 mm | same as shell | 25% | same as shell |
 
-Print the gasket and magnet coupons first. Magnets are brittle and powerful;
-wear eye protection, keep them away from children, and mark polarity before
-gluing.
+For the current prototype, print one tray first and dry-test the 4 x 2 mm pockets directly. Magnets are brittle and powerful;
+wear eye protection and keep them away from children. If magnets are glued
+later, establish and mark the chosen polarity convention first.
 
 Behn's published heat warning says its PLA cases can distort in hot cars,
 dishwashers, direct sunlight, or other high-temperature environments. That

@@ -1,93 +1,95 @@
 # Printing and assembly
 
-## 1. Calibrate before the full print
+## 1. Current goal: one tray prototype
 
-1. Export and print `tolerance_coupon.stl` using the intended shell profile.
-2. Dry-fit a 6 x 2 mm magnet into every labeled-clearance hole. The script
-   produces four graduated bores from 0.10 to 0.40 mm diametral clearance.
-3. Print `gasket_coupon.stl`, insert 2 mm silicone cord, and clamp two coupons
-   face-to-face. Look for even contact without crushing the cord flat.
-4. Put your actual reed and humidity pack on a printed tray face/core or 1:1
-   paper outline before committing to both shells.
+For the first physical test, do **not** print the outer shell yet.
 
-## 2. Print orientation
+Run:
 
-- Base and lid: outside face on the bed, cup opening upward.
-- Tray faces: two different STLs now, behn_tray_face_a (passages 1-5) and behn_tray_face_b (passages 6-10). Print one of each per tray. Platform on the bed, guide walls and rails upward. The engraved
-  passage numbers are now on a vertical wall rather than the bed, so they
-  print as a side-wall detail: a 0.5 mm recess across 2.6 mm of glyph is
-  roughly three perimeters wide. If they close up, raise `lane_number_depth`
-  or drop your extrusion width rather than enlarging the digits, which the
-  4.2 mm wall height will not allow.
-- Tray core: either broad face on the bed.
-- Hinge pin: vertical gives the best roundness, but a metal rod is stronger.
-- Latch clip: front face on the bed; use a brim if needed.
+```bash
+make stl
+```
 
-Avoid supports inside the gasket groove. If your printer bridges the hinge
-poorly, use a small local support blocker/painted support just under the hinge.
+This exports one `behn_tray_face_a`, one `behn_tray_face_b`, and one
+`behn_tray_core`. Together they make a single double-sided 10-reed tray.
 
-## 3. Dry assembly
+The pieces remain separate for support-friendly FDM printing. A one-piece
+assembled version would place a large roof over the internal Boveda channel
+and is not the cheap/prototype-friendly print path.
 
-1. Deburr the hinge bores by hand. Do not aggressively drill them oversize.
-2. Align the base's two outer knuckles with the lid's center knuckle.
-3. Insert the hinge pin. The lid should rotate freely without radial slop.
-4. Verify the case rims meet evenly before adding magnets or gasket.
-5. Test the latch clip. Increase `latch_clearance` if it requires force.
+### Print orientation
 
-## 4. Assemble the patented-layout trays
+- Face A: flat platform on the bed, reed rails/walls upward.
+- Face B: flat platform on the bed, reed rails/walls upward.
+- Core: either broad face on the bed.
+- Prototype material: ordinary PLA is sufficient.
+- Start around 0.16-0.20 mm layers, 4 walls, and ~20-25% infill.
 
-1. Each complete tray uses one face A, one face B, and one central core.
-   The faces are no longer interchangeable: they carry different numbers and
-   different hardware.
-2. Dry-align the flat back of one face to each broad side of the core. The
-   curved finger indents must align with the core's humidity-pack slot.
-   Turn face B over about its long axis, so the reed-tip end stays at the
-   reed-tip end. Do not flip it end-for-end: that is the one orientation in
-   which the engraved passage numbers come out upside down.
-   Seat four magnets in face A and four steel discs in face B before joining,
-   magnet faces flush with the outer surface. docs/MAGNETS.md explains why
-   the two faces get different hardware.
-3. Bond or mechanically fasten the faces to the core without obstructing any
-   ventilation aperture or the pack slot.
-4. Mark every magnet's north face before adhesive is opened. Opposing tray
-   faces must attract when the two completed trays are stacked.
-5. Keep adhesive below the aperture rim and let it cure outside the case.
-6. Slide one Boveda pack into each core recess.
-7. Place five reeds in the guide-wall passages on each face. Wrap two thin
-   elastic bands completely around the tray through the aligned wall notches.
-8. Check the numbering before the adhesive cures. Rolling the tray over about
-   its long axis should show 1-5 on one side and 6-10 on the other, both
-   reading left to right with the reed tips away from you.
-9. Build every tray the same way up, face A on top. Trays then attach to each
-   other at either rotation. Inverting a tray puts magnet against magnet and
-   is the one case that can repel.
+Use no supports in the magnet pockets, O-ring grooves, or Boveda opening.
 
-## 5. Gasket
+## 2. Fit checks before bonding
 
-1. Cut 2 mm closed-cell silicone cord slightly long.
-2. Dry-fit it in the lid groove with the seam at the rear, away from the latch.
-3. Trim for a butt joint; do not leave a gap or overlap.
-4. Bond only the joint and intermittent points if needed. Let adhesive cure.
-5. Close the empty case for several hours to set the gasket.
+### Boveda
 
-## 6. Airtightness test
+The default Size 8 channel is designed around:
 
-Do not submerge the case with reeds, Boveda, magnets, or unsealed PLA inside.
+- nominal pack face: 69.85 x 63.50 mm
+- opening width target: 71.85 mm
+- opening height target: 5.10 mm
 
-1. Put dry tissue inside the empty case.
-2. Close and latch it.
-3. Brush soapy water around the seam while gently squeezing the broad shell
-   faces. Persistent bubbles identify leakage.
-4. Alternatively, place a small calibrated hygrometer inside and compare the
-   stability curve against an unsealed control over 24 hours.
-5. Fix local leaks by correcting gasket compression. If air passes through the
-   shell itself, improve extrusion or coat the interior with a fully cured,
-   compatible sealant.
+The 5.10 mm height assumes a 4.50 mm hydrated-pack thickness plus 0.60 mm
+allowance. Boveda does not guarantee that thickness, so test a fresh pack.
+Do not enlarge the channel until the physical prototype shows that it binds.
 
-This is instrument storage, not a pressure vessel or food-safe container.
+### Silicone retention rings
 
-## 7. First humidity trial
+The tray has **two grooves at the same Z height**. That is intentional for the
+first prototype. Both are half-round/open-top seats sized for 2.0 mm round
+silicone cord/O-rings. The two positions cross gaps between ventilation rows,
+not the holes themselves.
 
-Use sacrificial/low-value reeds first. Boveda recommends Size 8 at 72% for
-less-active storage and Size 8 at 84% for same-day active use. Do not combine
-different RH packs or another humidifier in the same case.
+Start with a 60 mm ID x 2 mm cross-section silicone O-ring if available. A
+small 58/60/63 mm set is useful for finding the best preload. The goal is firm
+friction on the thicker portion of the reed without bending it.
+
+Reeds are inserted **tip-first**. There is no hard longitudinal reed stop in
+this version; retention is provided by the silicone friction and the existing
+tray geometry.
+
+### Magnet/steel pockets
+
+Every tray-face pocket is identical and is intentionally hardware-agnostic for
+this prototype:
+
+- nominal hardware: 4.00 mm diameter x 2.00 mm thick
+- straight pocket: 4.20 mm diameter x 2.15 mm deep
+- mouth lead-in: 0.15 mm chamfer
+
+Do **not** commit to a polarity scheme yet. A later version can use magnets,
+steel discs, or a mixture without changing the pocket geometry.
+
+If you already own the hardware, press-fit it dry by hand. It should start
+square at the chamfer and seat without hammering. Do not glue anything until
+the magnetic architecture is decided.
+
+## 3. Dry-assemble the tray
+
+1. Place the core between face A and face B.
+2. Keep the reed-tip borders aligned at the same end.
+3. Check that the Boveda slides through the channel before applying adhesive.
+4. Install two silicone O-rings around the assembled tray in the aligned
+   grooves.
+5. Test with sacrificial/low-value reeds first.
+6. Only after all fit checks pass, bond the two faces to the core with a small
+   amount of CA or epoxy away from ventilation apertures and the pack slot.
+
+## 4. Later: full case
+
+The full shell can still be exported with `make stl-all`, but the shell is
+**not the print target of this revision**. The gasket/closure geometry still
+needs its own physical validation/redesign pass before an expensive final
+case print.
+
+Before using a final case for valuable reeds, test the gasket, closure,
+humidity stability, and shell airtightness separately. An FDM print is not
+automatically airtight.

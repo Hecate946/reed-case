@@ -34,7 +34,7 @@ reproduce later.
 
 - Measure your actual Bb/A reeds and update `reed_length`, `reed_max_w`, and
   `reed_max_h`; the patent supplies no millimeter dimensions.
-- Measure hydrated and nearly depleted Boveda pack thickness.
+- Measure hydrated and nearly depleted Boveda Size 8 pack thickness before finalizing the 5.10 mm opening height.
 - Tune magnet bore clearance with the coupon.
 - Tune gasket compression with the coupon before printing a full lid.
 - Decide whether your final premium material is PLA, PETG, ASA, or a sealed

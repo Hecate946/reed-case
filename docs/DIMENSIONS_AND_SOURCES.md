@@ -43,6 +43,18 @@ manufacturer dimension. Measure your actual pack and update `boveda_h`.
 - Size 8: https://store.bovedainc.com/products/boveda-for-cigars-size-8
 - Size 60: https://store.bovedainc.com/products/boveda-for-cigars-size-60
 
+### Prototype tray opening and retention
+
+For `behn_premium20`, the current Size 8 Boveda opening target is **71.85 mm
+wide x 5.10 mm high**. The face dimensions are verified above; the encoded
+4.50 mm pack thickness is only an engineering allowance and must be checked
+against a real hydrated pack.
+
+Both silicone retention grooves are deliberately at the same height in the
+first prototype and are sized around 2.0 mm round silicone. Magnet polarity is
+not encoded in the geometry: both tray faces use the same 4.20 x 2.15 mm
+pocket, so the hardware scheme can be chosen after the tray fit is proven.
+
 ## Original engineering assumptions
 
 Behn does not publish millimeter dimensions for its wall thickness, rail
@@ -59,9 +71,9 @@ The following are independent starting values and should be prototyped:
 | Silicone gasket cord | 2.0 mm |
 | Gasket groove | 2.35 mm wide x 1.30 mm deep |
 | Gasket compression target | 25% |
-| Tray magnets | 6 x 2 mm disc |
+| Tray hardware pocket | 4 x 2 mm nominal disc; 4.20 x 2.15 mm straight pocket |
 | Hinge pin | 1.75 mm filament/rod |
-| Reed envelope | 72 x 14 x 3.25 mm |
+| Reed envelope | 70.5 x 13.4 x 3.30 mm |
 
 ## Reference photographs
 

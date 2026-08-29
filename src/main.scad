@@ -1,5 +1,6 @@
-// Interactive entry point. Edit the preset, then leave exactly one preview
-// option below uncommented. Saving the file refreshes OpenSCAD automatically.
+// Interactive entry point. The default view is ONE complete prototype tray.
+// Edit the preset, then leave exactly one preview option below uncommented.
+// Saving the file refreshes OpenSCAD automatically.
 preset = "behn_premium20"; // "behn_premium20" or "size60_studio"
 
 // preview_part = "base";
