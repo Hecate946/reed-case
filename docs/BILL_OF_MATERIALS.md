@@ -16,6 +16,16 @@
 | Humidity packs | 2 | Boveda Size 8, 72% RH | One inside each double-sided tray |
 | Adhesive | as needed | CA or epoxy | Keep away from gasket sealing face |
 
+
+## HECATE946 enclosure hardware
+
+| Item | Qty | Specification | Notes |
+|---|---:|---|---|
+| Perimeter seal | 1 | **185 mm ID x 2 mm CS silicone (VMQ) O-ring** | Closed ring; no glued joint |
+| Hinge axle | 1 | **2.0 mm stainless rod / music wire**, ~190 mm finished | A 200 mm blank is convenient |
+| Hinge clips | integrated | Three printed C-clips | PETG/nylon preferred for repeated removal |
+| Base hinge bearings | integrated | Four printed 10 mm barrels | Metal rod is the wear surface |
+
 ## Recommended print settings
 
 | Part | Layer | Walls | Infill | Material |

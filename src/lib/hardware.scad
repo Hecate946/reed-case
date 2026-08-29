@@ -15,12 +15,15 @@ module magnet_pocket(d = tray_magnet_d, h = tray_magnet_h) {
     pocket_h = h + magnet_h_clearance + epsilon;
     c = min(magnet_entry_chamfer, pocket_h / 3);
 
+    pocket_fn = is_library_fdm ? 32 : $fn;
+
     union() {
-        cylinder(d = pocket_d, h = pocket_h);
+        cylinder(d = pocket_d, h = pocket_h, $fn = pocket_fn);
         if (c > 0)
             translate([0, 0, pocket_h - c - epsilon])
                 cylinder(d1 = pocket_d,
                          d2 = pocket_d + 2 * c,
-                         h = c + 2 * epsilon);
+                         h = c + 2 * epsilon,
+                         $fn = pocket_fn);
     }
 }

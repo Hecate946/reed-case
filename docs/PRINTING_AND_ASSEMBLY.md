@@ -4,18 +4,28 @@
 
 For the first physical test, do **not** print the outer shell yet.
 
-Run:
+For a library/FDM prototype, run:
 
 ```bash
-make stl
+make stl-tray
 ```
 
-This exports one `behn_tray_face_a`, one `behn_tray_face_b`, and one
-`behn_tray_core`. Together they make a single double-sided 10-reed tray.
+This exports only one `behn_tray_face_a`, one `behn_tray_face_b`, and one
+`behn_tray_core` into `build/library-tray/`. Together they make a single
+double-sided 10-reed tray. The same folder also contains `PRINT_ME.txt` for
+quick reference at the printer.
+
+`make stl-tray` uses a library-FDM mesh profile: all physical dimensions are
+identical to the production model, but the 0.18 mm cosmetic relief around the
+vent-hole rims is omitted because it is below reliable 0.4 mm-nozzle detail and
+makes OpenSCAD 2021 exports unnecessarily slow. `make stl` remains the
+production-mesh export.
 
 The pieces remain separate for support-friendly FDM printing. A one-piece
 assembled version would place a large roof over the internal Boveda channel
-and is not the cheap/prototype-friendly print path.
+and is not the cheap/prototype-friendly print path. The Boveda stop ribs now
+belong entirely to the center core, so **both reed faces have truly flat backs
+at Z=0** and all three exported pieces can print without support.
 
 ### Print orientation
 
@@ -23,9 +33,12 @@ and is not the cheap/prototype-friendly print path.
 - Face B: flat platform on the bed, reed rails/walls upward.
 - Core: either broad face on the bed.
 - Prototype material: ordinary PLA is sufficient.
-- Start around 0.16-0.20 mm layers, 4 walls, and ~20-25% infill.
+- Start around 0.20 mm layers, 3 walls, 4 top/bottom layers, and ~15-20% infill.
+- Supports: **off** for all three pieces.
+- No raft unless the specific library printer needs one for adhesion.
 
-Use no supports in the magnet pockets, O-ring grooves, or Boveda opening.
+The magnet pockets, silicone grooves, Boveda opening, and core stop ribs are
+all designed to print without support in these orientations.
 
 ## 2. Fit checks before bonding
 

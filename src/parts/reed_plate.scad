@@ -6,7 +6,8 @@
   follows the disclosure; dimensions are fitted to the configured reed and
   humidity-pack envelopes in config.scad.
 
-  One complete tray = 2 x behn_tray_face + 1 x behn_tray_core.
+  One complete tray is modeled from two reed faces and one core; the library
+  exporter can fuse those regions into one permanently assembled print.
 */
 
 include <../lib/geometry.scad>
@@ -99,7 +100,7 @@ module patent_ventilation_apertures_2d(hole_d = tray_air_hole_d) {
         x_offset = (col - (tray_air_columns - 1) / 2) *
                    aperture_column_pitch();
         translate([lane_x(i) + x_offset, aperture_y(row)])
-            circle(d = hole_d, $fn = $preview ? 16 : 24);
+            circle(d = hole_d, $fn = is_library_fdm ? 16 : ($preview ? 16 : 24));
     }
 }
 
@@ -147,91 +148,49 @@ module patent_lane_number_engraving(first_lane = 1) {
                                  font = lane_number_font,
                                  halign = "center",
                                  valign = "center",
-                                 $fn = $preview ? 16 : 32);
-}
-
-function rounded_rect_arc_points(cx, cy, r, a0, a1, steps) =
-    [for (i = [0 : steps - 1])
-        let (a = a0 + (a1 - a0) * i / max(steps - 1, 1))
-        [cx + r * cos(a), cy + r * sin(a)]];
-
-function rounded_rect_points(w, d, r, steps) = concat(
-    rounded_rect_arc_points( w / 2 - r,  d / 2 - r, r,   0,  90, steps),
-    rounded_rect_arc_points(-w / 2 + r,  d / 2 - r, r,  90, 180, steps),
-    rounded_rect_arc_points(-w / 2 + r, -d / 2 + r, r, 180, 270, steps),
-    rounded_rect_arc_points( w / 2 - r, -d / 2 + r, r, 270, 360, steps)
-);
-
-function clockwise_circle_points(cx, cy, r, steps) =
-    [for (i = [0 : steps - 1])
-        let (a = -360 * i / steps)
-        [cx + r * cos(a), cy + r * sin(a)]];
-
-module patent_perforated_polygon_2d(hole_d, outline_inset = 0) {
-    // One polygon with 330 hole paths is dramatically faster to STL-render
-    // than asking CGAL to perform hundreds of separate circle differences.
-    // Outer path is CCW; hole paths are CW, so OpenSCAD treats them as holes.
-    outer_w = tray_body_w - 2 * outline_inset;
-    outer_d = tray_d - 2 * outline_inset;
-    outer_r = max(tray_body_corner_r - outline_inset, 0.10);
-    corner_steps = $preview ? 8 : 16;
-    hole_steps = $preview ? 16 : 24;
-    outer = rounded_rect_points(outer_w, outer_d, outer_r, corner_steps);
-    centers = [
-        for (i = [0 : reeds_per_face - 1],
-             row = [0 : tray_air_rows - 1],
-             col = [0 : tray_air_columns - 1])
-            [lane_x(i) +
-             (col - (tray_air_columns - 1) / 2) * aperture_column_pitch(),
-             aperture_y(row)]
-    ];
-    holes = [for (c = centers)
-        each clockwise_circle_points(c[0], c[1], hole_d / 2, hole_steps)];
-    points = concat(outer, holes);
-    paths = concat(
-        [[for (i = [0 : len(outer) - 1]) i]],
-        [for (k = [0 : len(centers) - 1])
-            [for (j = [0 : hole_steps - 1])
-                len(outer) + k * hole_steps + j]]
-    );
-
-    polygon(points = points, paths = paths);
+                                 $fn = is_library_fdm ? 16 : ($preview ? 16 : 32));
 }
 
 module patent_perforated_layer(z, h, hole_d, outline_inset = 0) {
+    // Keep the perforations as ordinary 2D boolean holes before extrusion.
+    // This is substantially faster and more reliable in OpenSCAD 2021 than
+    // encoding hundreds of hole loops into one giant polygon path.  It also
+    // produces a normal slicer-friendly manifold instead of spending minutes
+    // in CGAL triangulation during each STL export.
     translate([0, 0, z])
         linear_extrude(height = h, convexity = 10)
-            if (!front_plane_cutout_enable)
-                patent_perforated_polygon_2d(hole_d, outline_inset);
-            else
-                // Legacy optional cutout path; kept for the config flag.
-                difference() {
-                    offset(delta = -outline_inset) patent_face_outline_2d();
-                    union() {
-                        patent_ventilation_apertures_2d(hole_d);
-                        patent_front_plane_cutout_2d();
-                    }
-                }
+            difference() {
+                offset(delta = -outline_inset) patent_face_outline_2d();
+                patent_ventilation_apertures_2d(hole_d);
+                patent_front_plane_cutout_2d();
+            }
 }
 
 module patent_perforated_platform() {
-    // A stepped micro-chamfer softens the reed-facing aperture rims. This
-    // remains a small set of 2D extrusions, avoiding the enormous CSG tree
-    // produced by hundreds of individual 3D fillets in OpenSCAD 2021.
-    relief_step_h = tray_air_edge_relief_h / tray_air_edge_steps;
-    core_h = tray_face_t - tray_air_edge_relief_h;
+    // Production keeps the tiny stepped relief around every ventilation hole.
+    // A 0.18 mm rim relief is below what a typical 0.4 mm-nozzle library FDM
+    // printer can reproduce consistently, while it makes OpenSCAD 2021 spend
+    // several extra minutes unioning hundreds of tiny loops.  The library
+    // profile therefore exports the SAME 1.60 mm functional holes as one flat
+    // sheet.  Nothing affecting reed, Boveda, band, or magnet fit changes.
+    if (is_library_fdm) {
+        patent_perforated_layer(0, tray_face_t, tray_air_hole_d, 0);
+    } else {
+        relief_step_h = tray_air_edge_relief_h / tray_air_edge_steps;
+        core_h = tray_face_t - tray_air_edge_relief_h;
 
-    union() {
-        patent_perforated_layer(0, core_h + epsilon, tray_air_hole_d, 0);
-        for (step = [0 : tray_air_edge_steps - 1])
-            patent_perforated_layer(
-                core_h + step * relief_step_h - epsilon,
-                relief_step_h + 2 * epsilon,
-                tray_air_hole_d + 2 * tray_air_edge_relief *
-                    (step + 1) / tray_air_edge_steps,
-                tray_platform_top_chamfer *
-                    (step + 1) / tray_air_edge_steps
-            );
+        union() {
+            patent_perforated_layer(0, core_h + epsilon, tray_air_hole_d, 0);
+            for (step = [0 : tray_air_edge_steps - 1])
+                patent_perforated_layer(
+                    core_h + step * relief_step_h - epsilon,
+                    relief_step_h + 2 * epsilon,
+                    tray_air_hole_d + 2 * tray_air_edge_relief *
+                        (step + 1) / tray_air_edge_steps,
+                    tray_platform_top_chamfer *
+                        (step + 1) / tray_air_edge_steps
+                );
+        }
     }
 }
 
@@ -243,15 +202,15 @@ module patent_guide_walls() {
     start_y = guide_wall_start_y();
     end_y = tip_stop_inner_y() + epsilon;
 
-    translate([0, 0, tray_face_t])
+    translate([0, 0, tray_face_t - tray_feature_fuse_overlap])
         union()
             // The side borders are the outer walls; only make the N-1
             // dividers that actually separate adjacent reed passages.
             for (i = [1 : reeds_per_face - 1])
                 intersection() {
-                    linear_extrude(height = tray_guide_h)
+                    linear_extrude(height = tray_guide_h + tray_feature_fuse_overlap)
                         patent_face_outline_2d();
-                    top_chamfered_extrude(tray_guide_h,
+                    top_chamfered_extrude(tray_guide_h + tray_feature_fuse_overlap,
                                           tray_wall_top_chamfer)
                         translate([guide_x(i), (start_y + end_y) / 2])
                             square([guide_t(i), end_y - start_y],
@@ -275,7 +234,7 @@ module patent_guide_end_runout() {
     y0 = -tray_d / 2 - epsilon;
     z0 = tray_face_t;
     z_top = z0 + h + 1.0;
-    steps = $preview ? 10 : 24;
+    steps = is_library_fdm ? 16 : ($preview ? 10 : 24);
     span = tray_w + 20;
 
     if (L > 0)
@@ -314,7 +273,7 @@ module patent_longitudinal_stock_rails() {
                            y,
                            tray_face_t])
                     scale([1, 1, rail_h / end_radius])
-                        sphere(d = rail_w, $fn = $preview ? 16 : 32);
+                        sphere(d = rail_w, $fn = is_library_fdm ? 16 : ($preview ? 16 : 32));
 }
 
 module patent_reed_tip_stop() {
@@ -327,11 +286,12 @@ module patent_reed_tip_stop() {
     assert(tray_border_w >= lane_number_depth + 1.0,
            "Tip border is too thin to carry the engraved numbers");
 
-    translate([0, 0, tray_face_t])
+    translate([0, 0, tray_face_t - tray_feature_fuse_overlap])
         intersection() {
-            linear_extrude(height = tray_guide_h)
+            linear_extrude(height = tray_guide_h + tray_feature_fuse_overlap)
                 patent_face_outline_2d();
-            top_chamfered_extrude(tray_guide_h, tray_wall_top_chamfer)
+            top_chamfered_extrude(tray_guide_h + tray_feature_fuse_overlap,
+                                  tray_wall_top_chamfer)
                 translate([0, inner_y + tray_border_w / 2 + epsilon])
                     square([tray_body_w + 20,
                             tray_border_w + 2 * epsilon], center = true);
@@ -349,13 +309,13 @@ module patent_outer_side_walls() {
     assert(side_frame_w > 0,
            "Passage field leaves no room for a side frame");
 
-    translate([0, 0, tray_face_t])
+    translate([0, 0, tray_face_t - tray_feature_fuse_overlap])
         union()
             for (x = [-1, 1])
                 intersection() {
-                    linear_extrude(height = tray_guide_h)
+                    linear_extrude(height = tray_guide_h + tray_feature_fuse_overlap)
                         patent_face_outline_2d();
-                    top_chamfered_extrude(tray_guide_h,
+                    top_chamfered_extrude(tray_guide_h + tray_feature_fuse_overlap,
                                           tray_wall_top_chamfer)
                         translate([x * (passage_edge +
                                         side_frame_w / 2), 0])
@@ -393,7 +353,7 @@ module patent_band_notches() {
             rotate([0, 90, 0])
                 cylinder(r = band_groove_r(),
                          h = tray_w + 2 * epsilon,
-                         $fn = $preview ? 24 : 48);
+                         $fn = is_library_fdm ? 20 : ($preview ? 24 : 48));
         // Square off everything above the seat so the mouth is open to the
         // top face instead of leaving a lip the cord has to snap past.
         translate([0, band_y(gap),
@@ -404,27 +364,30 @@ module patent_band_notches() {
     }
 }
 
-module patent_pack_stop_half_ribs() {
-    // Each face carries half of every longitudinal stop support. The mirrored
-    // face supplies the other half, so the assembled tray has full-height ribs
-    // without a transverse connector or loose islands in the core print.
+module patent_pack_stop_ribs() {
+    // Full-height humidity-pack stop ribs live in the CENTER CORE, not on the
+    // printable reed faces. This is deliberately a printability feature:
+    // face A and face B now have completely flat backs at Z=0 and can be
+    // printed reed-side-up directly on the build plate with no supports.
+    //
+    // The ribs start at the heel bridge, so they are fused to the U-shaped
+    // core and cannot become loose islands. Their final volume is identical
+    // to the two old half-ribs after assembly; it is simply assigned to the
+    // support-friendly part instead.
     rib_start_y = -tray_d / 2;
     rib_end_y = tray_pack_stop_y;
     rib_length = rib_end_y - rib_start_y;
 
-    // Straight, constant-section stops aligned with the guide walls. Each
-    // face supplies half the core height and the halves meet at mid-plane.
     for (i = [1 : reeds_per_face - 1])
         translate([guide_x(i), (rib_start_y + rib_end_y) / 2,
-                   -tray_core_h / 4])
+                   tray_core_h / 2])
             cube([tray_pack_support_w, rib_length,
-                  tray_core_h / 2 + epsilon], center = true);
+                  tray_core_h], center = true);
 }
 
 module behn_tray_face(first_lane = 1) {
     union() {
         patent_perforated_platform();
-        patent_pack_stop_half_ribs();
         difference() {
             union() {
             patent_guide_walls();
@@ -460,10 +423,11 @@ module behn_tray_core() {
     // a TRUE SEMICIRCULAR CAP: the outer and inner edges have the same radius
     // and flow continuously into one another, like ().  This avoids the old
     // concave 'bite taken out of the corner' appearance at the pack mouth.
-    linear_extrude(height = tray_core_h, convexity = 10)
-        intersection() {
-            patent_face_outline_2d();
-            union() {
+    union() {
+        linear_extrude(height = tray_core_h, convexity = 10)
+            intersection() {
+                patent_face_outline_2d();
+                union() {
                 // Narrow heel bridge keeps the core one connected print.
                 translate([0,
                            -tray_d / 2 + tray_core_heel_bridge_d / 2])
@@ -485,10 +449,14 @@ module behn_tray_core() {
                     // Equal-radius cap on both sides of the rail end.
                     translate([rail_x, cap_center_y])
                         circle(r = mouth_cap_r,
-                               $fn = $preview ? 32 : 64);
+                               $fn = is_library_fdm ? 32 : ($preview ? 32 : 64));
+                }
                 }
             }
-        }
+
+        // The full-height pack-stop ribs are part of this flat-printing core.
+        patent_pack_stop_ribs();
+    }
 }
 
 // Passages 1..N. Hardware pockets are identical to face B.
@@ -497,6 +465,70 @@ module behn_tray_face_a() { behn_tray_face(1); }
 // Passages N+1..2N. Geometry matches face A except for numbering; the final
 // magnet/steel assignment is intentionally not encoded in the printed part.
 module behn_tray_face_b() { behn_tray_face(reeds_per_face + 1); }
+
+// Positive overlap used only by the monolithic export. The three-piece
+// construction can meet at exact planes, but a one-piece STL should contain
+// actual shared volume so slicers cannot interpret the interfaces as shells.
+tray_monolithic_fuse = 0.15;
+
+module behn_tray_interface_fusers(overlap = tray_monolithic_fuse) {
+    // Copy a thin slice of the core through each mating face. These slices
+    // occupy material that is already inside the face sheets, so they create
+    // a true boolean union without changing the external dimensions or the
+    // Boveda opening.
+    translate([0, 0, -overlap])
+        intersection() {
+            behn_tray_core();
+            translate([-tray_body_w, -tray_d, 0])
+                cube([2 * tray_body_w, 2 * tray_d, overlap]);
+        }
+
+    translate([0, 0, overlap])
+        intersection() {
+            behn_tray_core();
+            translate([-tray_body_w, -tray_d, tray_core_h - overlap])
+                cube([2 * tray_body_w, 2 * tray_d, overlap]);
+        }
+}
+
+
+module behn_tray_core_monolithic() {
+    // Same XY geometry as the normal core, extended 0.15 mm into each face.
+    // This does NOT narrow the Boveda tunnel; only the solid core rails/ribs
+    // enter the face sheets. The overlap guarantees the one-file library STL
+    // slices as one permanently fused physical part.
+    translate([0, 0, -tray_monolithic_fuse])
+        scale([1, 1,
+               (tray_core_h + 2 * tray_monolithic_fuse) / tray_core_h])
+            behn_tray_core();
+}
+
+module behn_tray_one_piece() {
+    // Finished, permanently fused double-sided tray. Pre-render each major
+    // region into a clean CGAL mesh before the final union. This keeps the
+    // final Boolean to three modest polyhedra instead of asking CGAL to
+    // re-evaluate every ventilation-hole primitive at once.
+    union() {
+        render(convexity = 20) behn_tray_core_monolithic();
+        translate([0, 0, tray_core_h])
+            render(convexity = 20) behn_tray_face_a();
+        rotate([0, 180, 0])
+            render(convexity = 20) behn_tray_face_b();
+    }
+}
+
+module behn_tray_one_piece_library_oriented() {
+    // A 45-degree long-edge orientation avoids the ~72 mm horizontal bridge
+    // over the Boveda tunnel that a flat monolithic print would create. It
+    // also turns the two outward reed faces into ~45-degree overhangs. The
+    // slicer should add a generous brim, but should NOT auto-lay-flat this STL.
+    a = 45;
+    lift = (tray_body_w * sin(a) + tray_total_h * cos(a)) / 2;
+    translate([0, 0, lift])
+        rotate([0, a, 0])
+            translate([0, 0, -tray_core_h / 2])
+                behn_tray_one_piece();
+}
 
 module behn_tray() {
     color([0.16, 0.18, 0.21]) behn_tray_core();

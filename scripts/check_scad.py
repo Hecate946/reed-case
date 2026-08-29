@@ -68,7 +68,9 @@ def main() -> int:
     required = {
         "base_shell", "lid_shell", "behn_tray_face", "behn_tray_face_a",
         "behn_tray_face_b", "behn_tray_core",
-        "behn_tray", "hinge_pin", "latch_clip", "render_selected",
+        "behn_tray", "behn_tray_one_piece", "behn_tray_core_monolithic",
+        "hinge_pin", "latch_clip", "render_selected",
+        "hecate946_base", "hecate946_lid", "hecate946_closed_assembly",
     }
     corpus = "\n".join(path.read_text(encoding="utf-8") for path in files)
     for module in sorted(required):

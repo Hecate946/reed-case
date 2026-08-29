@@ -1,5 +1,6 @@
 include <parts/shell.scad>
 include <parts/reed_plate.scad>
+include <parts/hecate946_case.scad>
 include <parts/hardware_parts.scad>
 include <parts/calibration.scad>
 
@@ -62,15 +63,9 @@ module patent_tray_exploded() {
 module pack_insertion_demo() {
     // Pack is shown partially inserted through the +Y rear-frame opening.
     demo_extension = boveda_d * 0.38;
+    // The core now contains the complete pack-stop ribs. Keeping those ribs
+    // out of the two faces makes every prototype component support-free.
     color([0.16, 0.18, 0.21, 0.45]) behn_tray_core();
-    color([0.32, 0.35, 0.40]) {
-        translate([0, 0, tray_core_h]) {
-            patent_pack_stop_half_ribs();
-        }
-        mirror([0, 0, 1]) {
-            patent_pack_stop_half_ribs();
-        }
-    }
     translate([0, tray_pack_seated_y + demo_extension,
                (tray_core_h - boveda_h) / 2])
         pack_placeholder();
@@ -117,7 +112,11 @@ module render_selected(which) {
              which == "reed_plate") behn_tray_face_a();
     else if (which == "behn_tray_face_b") behn_tray_face_b();
     else if (which == "behn_tray_core") behn_tray_core();
+    else if (which == "behn_tray_core_monolithic") behn_tray_core_monolithic();
     else if (which == "behn_tray") behn_tray();
+    else if (which == "behn_tray_one_piece") behn_tray_one_piece();
+    else if (which == "behn_tray_one_piece_library_oriented")
+        behn_tray_one_piece_library_oriented();
     else if (which == "populated_behn_tray") populated_behn_tray(true);
     else if (which == "pack_insertion_demo") pack_insertion_demo();
     else if (which == "patent_tray_exploded") patent_tray_exploded();
@@ -127,6 +126,17 @@ module render_selected(which) {
     else if (which == "gasket_coupon") gasket_coupon();
     else if (which == "tolerance_coupon") tolerance_coupon();
     else if (which == "print_layout") print_layout();
+    else if (which == "hecate946_base") hecate946_base();
+    else if (which == "hecate946_lid") hecate946_lid();
+    else if (which == "hecate946_hinge_coupon") hecate946_hinge_coupon();
+    else if (which == "hecate946_seal_view") hecate946_seal_view();
+    else if (which == "hecate946_layout") hecate946_open_layout();
+    else if (which == "hecate946_nested") hecate946_nested_trays(true);
+    else if (which == "hecate946_nested_exploded")
+        hecate946_nested_trays_exploded(true);
+    else if (which == "hecate946_one_tray_fit") hecate946_one_tray_fit();
+    else if (which == "hecate946_assembly") hecate946_closed_assembly(true);
+    else if (which == "hecate946_shell") hecate946_shell_closed();
     else if (which == "exploded") closed_assembly(true);
     else if (which == "assembly") closed_assembly(false);
     else assert(false, str("Unknown part: ", which));
