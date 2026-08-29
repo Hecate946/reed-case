@@ -1,7 +1,7 @@
 OPENSCAD ?= openscad
 SOURCE := src/export.scad
 BUILD := build
-PARTS := base lid behn_tray_face behn_tray_core hinge_pin latch_clip gasket_coupon tolerance_coupon assembly
+PARTS := base lid behn_tray_face_a behn_tray_face_b behn_tray_core hinge_pin latch_clip gasket_coupon tolerance_coupon assembly
 
 .PHONY: help check preview stl stl-size60 clean
 

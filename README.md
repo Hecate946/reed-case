@@ -5,12 +5,17 @@ clarinet reed case. The default preset uses the publicly listed exterior body
 envelope of a Behn Clarinet Premium 20 case: **1.50 x 4.00 x 4.00 in**
 (38.1 x 101.6 x 101.6 mm).
 
-The tray now implements the architecture disclosed in Behn's active US Patent
+The tray implements the architecture disclosed in Behn's active US Patent
 US12103755B2: two-sided reed platforms, five guide-wall passages per face, an
 internal humidity-pack recess with end slot and finger indent, three-column
-ventilation grids, two flat longitudinal stock rails per passage, one aligned
-elastic-band notch, and side-wall magnetic stacking apertures. The patent does not publish millimeter dimensions,
-so those values are parametric fits rather than claimed factory measurements.
+ventilation grids, one aligned elastic-band notch, and side-wall magnetic
+stacking apertures. The patent does not publish millimeter dimensions, so
+those values are parametric fits rather than claimed factory measurements.
+
+Where reference photographs of the retail tray disagree with a patent-literal
+reading, the photographs win by default. See
+`docs/PHOTO_MATCH.md` for the specific departures and the flags that revert
+each one, and `docs/MAGNETS.md` for the magnet and steel-disc hardware.
 
 ## Quick start
 

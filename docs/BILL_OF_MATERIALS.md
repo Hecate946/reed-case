@@ -10,7 +10,8 @@
 | Tray cores | 2 | PLA or PETG, printed | Holds one humidity pack internally |
 | Elastic bands | 4 | Thin silicone/latex elastic | Two wrapped around each tray |
 | Gasket cord | ~0.38 m | 2 mm closed-cell silicone | Join with silicone adhesive |
-| Tray magnets | 16 max | 6 x 2 mm neodymium discs | 4 per tray face; verify polarity before bonding |
+| Neodymium disc magnet | 4 x 2 mm N52, axial, Ni-Cu-Ni | 4 per tray | face A pockets, buried in the side border - see docs/MAGNETS.md |
+| Mild steel disc | 4 x 2 mm | 4 per tray | face B pockets - gives orientation-independent attachment |
 | Hinge pin | 1 | 1.75 mm filament or metal rod | Cut only after trial assembly |
 | Front latch | 1 | PLA/PETG, printed | Optional removable backup latch |
 | Humidity packs | 2 | Boveda Size 8, 72% RH | One inside each double-sided tray |

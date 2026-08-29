@@ -63,6 +63,13 @@ The following are independent starting values and should be prototyped:
 | Hinge pin | 1.75 mm filament/rod |
 | Reed envelope | 72 x 14 x 3.25 mm |
 
+## Reference photographs
+
+Four photographs of the retail tray and of a printed copy were used as a
+visual reference. They carry no scale, so they were used to fix topology and
+proportion only, never absolute dimensions. The departures they drove, and the
+config flags that revert each one, are listed in `PHOTO_MATCH.md`.
+
 ## Patented tray layout
 
 One complete tray has two opposite platforms with five passages on each face,

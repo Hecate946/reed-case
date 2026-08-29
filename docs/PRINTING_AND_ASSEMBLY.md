@@ -13,7 +13,12 @@
 ## 2. Print orientation
 
 - Base and lid: outside face on the bed, cup opening upward.
-- Tray face: platform on the bed, guide walls and rails upward.
+- Tray faces: two different STLs now, behn_tray_face_a (passages 1-5) and behn_tray_face_b (passages 6-10). Print one of each per tray. Platform on the bed, guide walls and rails upward. The engraved
+  passage numbers are now on a vertical wall rather than the bed, so they
+  print as a side-wall detail: a 0.5 mm recess across 2.6 mm of glyph is
+  roughly three perimeters wide. If they close up, raise `lane_number_depth`
+  or drop your extrusion width rather than enlarging the digits, which the
+  4.2 mm wall height will not allow.
 - Tray core: either broad face on the bed.
 - Hinge pin: vertical gives the best roundness, but a metal rod is stronger.
 - Latch clip: front face on the bed; use a brim if needed.
@@ -31,9 +36,17 @@ poorly, use a small local support blocker/painted support just under the hinge.
 
 ## 4. Assemble the patented-layout trays
 
-1. Each complete tray uses two identical faces and one central core.
+1. Each complete tray uses one face A, one face B, and one central core.
+   The faces are no longer interchangeable: they carry different numbers and
+   different hardware.
 2. Dry-align the flat back of one face to each broad side of the core. The
    curved finger indents must align with the core's humidity-pack slot.
+   Turn face B over about its long axis, so the reed-tip end stays at the
+   reed-tip end. Do not flip it end-for-end: that is the one orientation in
+   which the engraved passage numbers come out upside down.
+   Seat four magnets in face A and four steel discs in face B before joining,
+   magnet faces flush with the outer surface. docs/MAGNETS.md explains why
+   the two faces get different hardware.
 3. Bond or mechanically fasten the faces to the core without obstructing any
    ventilation aperture or the pack slot.
 4. Mark every magnet's north face before adhesive is opened. Opposing tray
@@ -42,6 +55,12 @@ poorly, use a small local support blocker/painted support just under the hinge.
 6. Slide one Boveda pack into each core recess.
 7. Place five reeds in the guide-wall passages on each face. Wrap two thin
    elastic bands completely around the tray through the aligned wall notches.
+8. Check the numbering before the adhesive cures. Rolling the tray over about
+   its long axis should show 1-5 on one side and 6-10 on the other, both
+   reading left to right with the reed tips away from you.
+9. Build every tray the same way up, face A on top. Trays then attach to each
+   other at either rotation. Inverting a tray puts magnet against magnet and
+   is the one case that can repel.
 
 ## 5. Gasket
 

@@ -4,8 +4,9 @@ preset = "behn_premium20"; // "behn_premium20" or "size60_studio"
 
 // preview_part = "base";
 // preview_part = "lid";
-// preview_part = "behn_tray_face";
-// preview_part = "reed_plate"; // alias for behn_tray_face
+// preview_part = "behn_tray_face_a";
+// preview_part = "behn_tray_face_b";
+// preview_part = "reed_plate"; // alias for behn_tray_face_a
 // preview_part = "behn_tray_core";
 preview_part = "behn_tray";
 // preview_part = "populated_behn_tray";

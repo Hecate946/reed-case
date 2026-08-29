@@ -74,7 +74,7 @@ tray_guide_t = 1.10;
 tray_outer_guide_t = 1.60;
 // Each finished passage is 14.5 mm clear: 0.5 mm wider than the configured
 // maximum Bb clarinet reed. Guide centers are derived from this dimension.
-reed_slot_clear_w = 14.50;
+reed_slot_clear_w = 14.30;
 tray_guide_span = 2 * (reed_slot_clear_w +
                        (tray_outer_guide_t + tray_guide_t) / 2) +
                   max(reeds_per_face - 2, 0) *
@@ -102,33 +102,124 @@ tray_pack_support_w = 1.60;
 tray_pack_mouth_round_r = 2.0;
 
 // Bb/Eb clarinet reed design envelope. Measure your own reeds before finalizing.
-reed_length = 72.0;
-reed_max_w = 14.0;
-reed_max_h = 3.25;
-reed_end_margin = 6.0;
+// Bb and A clarinet take the same reed; no separate A-clarinet cut is made.
+// Published soprano Bb figures cluster at 67-70 mm long, 11.5-13 mm wide at
+// the tip and 2.8-3.2 mm at the heel. These are envelope values, i.e. the
+// largest reed the passage must accept, so each carries clearance over the
+// largest published figure. Measure your own stock and tighten if you like.
+reed_length = 70.5;
+reed_max_w = 13.4;
+reed_max_h = 3.30;
+reed_end_margin = 7.5;
 reed_tip_clearance = 0.50;
 rail_h = 0.55;
 rail_w = 2.00;
 rail_count = 2;
 rail_rows = 11; // rails cover the lower 11 of the 22 aperture rows
 elastic_band_positions = [-0.02]; // single aligned notch shown in Fig. 4
-elastic_band_notch_w = 2.2;
-elastic_band_notch_d = 1.6;
 
-// Physical tray reference: compact magnets live in dedicated corner ears,
+// ---------------------------------------------------------------------------
+// Reference-photograph match
+//
+// The four supplied photographs (retail tray, printed tray rear face, printed
+// tray edge) show three departures from the earlier patent-literal geometry.
+// Each is a flag so the previous behaviour can be restored in one edit.
+// ---------------------------------------------------------------------------
+
+// The retail tray carries an engraved passage number at the reed-tip end of
+// every passage. In the photograph the digits stand upright while the
+// apertures beside them are foreshortened into ellipses, so they sit on the
+// vertical inner face of the reed tip stop, not on the floor. The available
+// height is therefore tray_guide_h, which is what caps lane_number_size.
+lane_numbers_enable = true;
+lane_number_size = 2.60;    // nominal cap height passed to text()
+lane_number_depth = 0.50;   // engraved recess depth into the stop wall
+lane_number_margin = 0.80;  // minimum clear wall above and below a digit
+lane_number_font = "Liberation Sans:style=Bold";
+
+// Two rounded longitudinal rails per passage, Fig. 4 element 152. They begin
+// at the heel edge and stop halfway between aperture rows 11 and 12, so they
+// run under exactly half of the 22-row field.
+stock_rails_enable = true;
+
+// The photographed tray edge is solid above and below the humidity-pack
+// mouth, so the reed-facing sheet is not cut away at the insertion end.
+front_plane_cutout_enable = false;
+
+// With the sheet solid, the passage dividers run the full tray length as they
+// do in the photographs instead of stopping at the old cutout edge.
+guide_walls_full_length = true;
+
+// Clear floor left between the softened aperture edge and each end of the
+// passage. Moving the numbers off the floor freed the space the old label
+// zone reserved, so the field now runs close to both borders as in Fig. 4.
+aperture_heel_margin = 2.00;  // to the open heel edge of the tray
+aperture_tip_margin = 1.20;   // to the inner face of the reed tip stop
+// Round-section elastic cord, not a flat band. The groove is a half-round
+// seat cut a little deeper than the cord radius so the cord sits below the
+// wall top and cannot roll off, while staying free of a true undercut.
+elastic_band_d = 2.00;           // cord diameter
+elastic_band_clearance = 0.25;   // added to the radius
+elastic_band_seat_depth = 0.35;  // extra depth below the half-round
+
+// Which aperture row gap each band crosses, counting holes from the heel end
+// starting at 1. 8.5 means "between holes 8 and 9".
+elastic_band_row_gaps = [8.5, 11.5];
+
+// Horizontal run of the rounded end on every divider and side frame at the
+// open heel end. The profile is a quarter arc that meets the floor
+// vertically, so the wall ends in a rounded nose rather than a feather edge.
+// Equal to tray_guide_h it is a true circle; larger values stretch it into an
+// ellipse. Set to 0 for square ends.
+guide_end_taper = tray_guide_h;
+
+// Floor on the width of the three closed borders. The actual figure,
+// tray_border_w, is derived from the body width further down, because on the
+// larger preset the humidity-pack channel needs a wider body than this
+// minimum would give and the borders have to follow it. Either way all three
+// borders end up the same width. The heel end stays open.
+// Wide enough to bury a magnet pocket with a full wall on both sides:
+// pocket diameter 4.20 plus 1.10 mm each side. The pockets used to sit in
+// ears that stuck out past the body, which put the thinnest material of the
+// whole tray on the outside where it takes the knocks. Burying them inside
+// the border is the single biggest durability change available here.
+tray_border_w_min = 6.40;
+
+// Physical tray reference: compact magnets live in dedicated ears,
 // fully outside the clear reed passages.
-tray_corner_tab_d = 7.5;
+// Hardware: 4 x 2 mm N52 neodymium disc, axially magnetised, Ni-Cu-Ni
+// plated, typical tolerance +/-0.1 mm. Sold everywhere as "D4x2".
+//
+// Both faces take the SAME pocket, so a pocket accepts either the magnet or
+// a 4 x 2 mm mild steel disc of identical size. See docs/MAGNETS.md for why
+// one face gets steel rather than a second magnet.
 tray_magnet_d = 4.0;
-tray_magnet_h = 1.5;
+tray_magnet_h = 2.0;
 magnet_d_clearance = 0.20;
 magnet_h_clearance = 0.15;
 magnet_lane_clearance = 0.25;
-tray_magnet_x = (tray_w - tray_corner_tab_d) / 2;
-tray_magnet_y = tray_d / 2 - tray_corner_tab_d / 2;
+magnet_wall_min = 1.00;
+// Distance from each tray end to the pocket centre. Equal at both ends, so
+// the four pockets sit on a rectangle centred on the tray and a tray mates
+// with another at either rotation about Z.
+tray_magnet_edge_inset = 12.0;
+tray_magnet_y = tray_d / 2 - tray_magnet_edge_inset;
 tray_core_side_wall_min = 1.50;
-tray_body_w = max(tray_w - tray_corner_tab_d,
+// The body is the guide span plus a border each side, unless the humidity
+// pack needs more; on the 60-reed preset it does.
+tray_body_w = max(tray_guide_span + tray_outer_guide_t + 2 * tray_border_w_min,
                   boveda_w + 2 * boveda_clearance +
                   2 * tray_core_side_wall_min);
+
+// Whatever the body width came out as, all three borders take the leftover
+// equally: the two side frames by construction, the reed tip border by using
+// the same figure. 3.00 mm on behn_premium20, wider on size60_studio.
+tray_border_w = (tray_body_w - tray_guide_span - tray_outer_guide_t) / 2;
+
+// Centred in the side border, so the wall is the same thickness inboard and
+// outboard of the magnet. No ears, no protrusions: the tray outline is a
+// plain rounded rectangle.
+tray_magnet_x = (tray_body_w - tray_border_w) / 2;
 tray_body_corner_r = min(
     tray_corner_r,
     max((tray_body_w - (boveda_w + 2 * boveda_clearance)) / 2 -
@@ -165,23 +256,52 @@ assert(reed_slot_clear_w >= reed_max_w + 0.4,
        "Reed passages need at least 0.4 mm total width clearance");
 assert(tray_side_wall_w > tray_outer_guide_t,
        "Configured reed passages do not fit within the tray width");
+assert(tray_border_w >= tray_border_w_min - 0.01,
+       str("Borders came out at ", tray_border_w, " mm, under the ",
+           tray_border_w_min, " mm minimum"));
 assert(tray_body_w <= tray_w,
        "Humidity channel and minimum side walls exceed the tray width");
 assert(rail_rows > 0 && rail_rows <= tray_air_rows / 2,
        "Rail coverage must not extend beyond half of the aperture rows");
-assert(abs(tray_magnet_x) + tray_corner_tab_d / 2 <= tray_w / 2,
+assert(abs(tray_magnet_x) + tray_border_w / 2 <= tray_w / 2,
        "Tray corner tab exceeds the tray width");
-assert(abs(tray_magnet_y) + tray_corner_tab_d / 2 <= tray_d / 2,
+assert(abs(tray_magnet_y) + tray_border_w / 2 <= tray_d / 2,
        "Tray corner tab exceeds the tray depth");
-assert((tray_magnet_d + magnet_d_clearance) / 2 + 1.0 <=
-       tray_corner_tab_d / 2,
+assert(tray_magnet_y - (tray_magnet_d + magnet_d_clearance) / 2 >
+       -tray_d / 2 + guide_end_taper + magnet_wall_min,
+       "Magnet pocket overlaps the divider run-out at the heel end");
+assert(tray_border_w >= tray_magnet_d + magnet_d_clearance +
+                        2 * magnet_wall_min,
+       str("Side border is ", tray_border_w, " mm: too narrow to bury a ",
+           tray_magnet_d, " mm magnet with ", magnet_wall_min,
+           " mm of wall on each side"));
+assert(elastic_band_d / 2 + elastic_band_clearance +
+       elastic_band_seat_depth < tray_guide_h - 1.0,
+       "Band groove would leave less than 1 mm of divider beneath it");
+assert(tray_magnet_h + magnet_h_clearance < tray_face_t + tray_guide_h - 1.0,
+       "Magnet pocket would leave less than 1 mm of floor beneath it");
+assert((tray_magnet_d + magnet_d_clearance) / 2 + magnet_wall_min <=
+       tray_border_w / 2,
        "Magnet pocket leaves less than 1 mm around the corner tab");
 assert(tray_magnet_x - (tray_magnet_d + magnet_d_clearance) / 2 >=
        tray_guide_span / 2 + tray_outer_guide_t / 2 +
        magnet_lane_clearance,
        "Magnet pocket intrudes into a reed passage");
-assert(tray_d >= reed_length + 2 * reed_end_margin,
+// reed_end_margin is now a MINIMUM on the open heel end, not a placement
+// value: the reed is located from the tip border inwards, so whatever is left
+// over collects at the heel.
+assert(tray_d >= reed_length + reed_tip_clearance + tray_border_w +
+                 reed_end_margin,
        "Tray is too short for the configured reed envelope");
+assert(!lane_numbers_enable ||
+       lane_number_size <= tray_guide_h - 2 * lane_number_margin,
+       str("Passage numbers do not fit the ", tray_guide_h,
+           " mm tip-stop wall with ", lane_number_margin,
+           " mm clear above and below"));
+assert(!lane_numbers_enable || lane_number_depth <= 1.50,
+       "Engraved passage numbers deeper than 1.5 mm weaken the tip stop");
+assert(!lane_numbers_enable || lane_number_size < reed_slot_clear_w - 2.0,
+       "Passage numbers are too large for the passage width");
 assert(tray_w >= boveda_w + 2 * (tray_outer_guide_t + boveda_clearance),
        "Humidity pack is too wide for the tray recess");
 assert(tray_pack_stop_y > -tray_d / 2 + tray_pack_support_w,

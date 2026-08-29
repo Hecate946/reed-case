@@ -5,7 +5,7 @@
 1. Open `src/main.scad`.
 2. Use F5 for a fast preview while adjusting values in `src/config.scad`.
 3. Use F6 only when you need the fully rendered solid.
-4. Switch `preview_part` to `behn_tray_face`, `behn_tray_core`,
+4. Switch `preview_part` to `behn_tray_face_a`, `behn_tray_face_b`, `behn_tray_core`,
    `patent_tray_exploded`, `gasket_coupon`, or `tolerance_coupon` while tuning
    fits so preview/render time stays short.
 5. Run `make check` after structural edits.

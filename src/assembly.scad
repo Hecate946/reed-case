@@ -20,23 +20,21 @@ module pack_placeholder() {
 module face_reeds(up = true) {
     for (i = [0 : reeds_per_face - 1])
         if (up)
-            translate([lane_x(i), 0, tray_face_t + rail_h])
+            translate([lane_x(i), reed_center_y(), tray_face_t + rail_h])
                 reed_placeholder();
         else
             mirror([0, 0, 1])
-                translate([lane_x(i), 0, tray_face_t + rail_h])
+                translate([lane_x(i), reed_center_y(), tray_face_t + rail_h])
                     reed_placeholder();
 }
 
 module elastic_band_placeholder(y) {
-    band_t = 0.8;
-    band_w = 1.8;
-    color([0.05, 0.05, 0.05]) {
-        translate([0, y, tray_core_h + tray_face_t + tray_guide_h - band_t / 2])
-            cube([tray_w + 1.0, band_w, band_t], center = true);
-        translate([0, y, -tray_face_t - tray_guide_h + band_t / 2])
-            cube([tray_w + 1.0, band_w, band_t], center = true);
-    }
+    color([0.05, 0.05, 0.05])
+        for (z = [tray_core_h + band_groove_z(), -band_groove_z()])
+            translate([-tray_w / 2, y, z])
+                rotate([0, 90, 0])
+                    cylinder(d = elastic_band_d, h = tray_w,
+                             $fn = $preview ? 16 : 32);
 }
 
 module populated_behn_tray(show_pack = true) {
@@ -47,15 +45,15 @@ module populated_behn_tray(show_pack = true) {
             pack_placeholder();
     translate([0, 0, tray_core_h]) face_reeds(true);
     face_reeds(false);
-    for (p = elastic_band_positions)
-        elastic_band_placeholder(p * reed_length);
+    for (gap = elastic_band_row_gaps)
+        elastic_band_placeholder(band_y(gap));
 }
 
 module patent_tray_exploded() {
     translate([0, 0, -exploded_gap])
-        mirror([0, 0, 1]) behn_tray_face();
+        rotate([0, 180, 0]) behn_tray_face_b();
     behn_tray_core();
-    translate([0, 0, tray_core_h + exploded_gap]) behn_tray_face();
+    translate([0, 0, tray_core_h + exploded_gap]) behn_tray_face_a();
     translate([0, tray_pack_seated_y,
                (tray_core_h - boveda_h) / 2])
         pack_placeholder();
@@ -107,14 +105,17 @@ module print_layout() {
     spacing = max(case_w, case_d) + 12;
     translate([-spacing / 2, 0, 0]) base_shell();
     translate([ spacing / 2, 0, 0]) lid_shell();
-    translate([-spacing / 2, case_d + 15, 0]) behn_tray_face();
+    translate([-spacing / 2, case_d + 15, 0]) behn_tray_face_a();
+    translate([spacing / 2, case_d + 15, 0]) behn_tray_face_b();
     translate([ spacing / 2, case_d + 15, 0]) behn_tray_core();
 }
 
 module render_selected(which) {
     if (which == "base") base_shell();
     else if (which == "lid") lid_shell();
-    else if (which == "behn_tray_face" || which == "reed_plate") behn_tray_face();
+    else if (which == "behn_tray_face_a" || which == "behn_tray_face" ||
+             which == "reed_plate") behn_tray_face_a();
+    else if (which == "behn_tray_face_b") behn_tray_face_b();
     else if (which == "behn_tray_core") behn_tray_core();
     else if (which == "behn_tray") behn_tray();
     else if (which == "populated_behn_tray") populated_behn_tray(true);
