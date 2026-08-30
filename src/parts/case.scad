@@ -1,17 +1,19 @@
 /*
-  V2 prototype enclosure.
+  Two-tray prototype enclosure.
 
   Goals:
   - compact two-tray layout with no hygrometer bay
   - real metal hinge pin
   - real magnets/steel targets
   - real silicone O-ring
-  - printed dual snap latches to evaluate click feel before selecting final
-    metal closure hardware
+  - two internal spring-support blocks
+  - separate full-height moving front latch and matching case openings
 */
 
 include <../lib/geometry.scad>
 include <../lib/hardware.scad>
+include <spring_mounts.scad>
+include <latch.scad>
 
 module v2_case_cup(h, floor_t) {
     rounded_cup(v2_case_w, v2_case_d, h,
@@ -95,51 +97,6 @@ module v2_lid_hinge() {
         }
 }
 
-module v2_base_catch(x) {
-    y = v2_case_d / 2 + v2_latch_catch_d / 2 - 0.45;
-    z = v2_base_h - 3.15;
-    translate([x, y, z])
-        rounded_prism([v2_latch_arm_w + 1.4,
-                       v2_latch_catch_d,
-                       v2_latch_catch_h], 0.50);
-}
-
-module v2_lid_latch(x) {
-    // Defined in lid print orientation. After the lid is mirrored closed, the
-    // free end points downward and the inward hook snaps beneath the catch.
-    front_y = v2_case_d / 2;
-    arm_y = front_y + 2.40;
-    arm_z0 = 2.30;
-    arm_h = v2_lid_h + v2_latch_extension - arm_z0;
-
-    union() {
-        translate([x, arm_y, arm_z0])
-            rounded_prism([v2_latch_arm_w,
-                           v2_latch_arm_t,
-                           arm_h], 0.50);
-
-        // Root bridge into the lid wall.
-        translate([x, front_y + 1.00, arm_z0])
-            rounded_prism([v2_latch_arm_w,
-                           2.40, 3.20], 0.50);
-
-        // Inward hook.
-        translate([x,
-                   front_y + 1.20,
-                   v2_lid_h + v2_latch_extension - v2_latch_hook_h])
-            rounded_prism([v2_latch_arm_w - 2.0,
-                           v2_latch_hook_d,
-                           v2_latch_hook_h], 0.38);
-
-        // Tactile finger pad.
-        translate([x,
-                   arm_y + v2_latch_arm_t / 2 + 0.60,
-                   v2_lid_h + v2_latch_extension - 1.65])
-            rounded_prism([v2_latch_arm_w - 3.0,
-                           1.55, 1.65], 0.42);
-    }
-}
-
 module v2_gasket_groove_cut() {
     translate([0, 0, v2_lid_h - v2_gasket_groove_d])
         rounded_ring(v2_case_w - 2 * v2_gasket_outer_land,
@@ -160,12 +117,11 @@ module v2_lid_engraving_cut() {
                      valign = "center");
 }
 
-module case_base() {
+module case_base_body() {
     difference() {
         union() {
             v2_case_cup(v2_base_h, v2_base_floor_t);
             v2_base_hinge();
-            for (x = v2_latch_xs) v2_base_catch(x);
         }
 
         for (x = [-v2_tray_x, v2_tray_x]) {
@@ -173,6 +129,16 @@ module case_base() {
             v2_floor_hardware_pockets(x);
             v2_thumb_scoop(x);
         }
+
+        latch_case_fit_openings();
+    }
+}
+
+module case_base() {
+    union() {
+        case_base_body();
+        installed_leaf_spring_mounts();
+        installed_latch_guides();
     }
 }
 
@@ -181,9 +147,9 @@ module case_lid() {
         union() {
             v2_case_cup(v2_lid_h, v2_lid_roof_t);
             v2_lid_hinge();
-            for (x = v2_latch_xs) v2_lid_latch(x);
         }
         v2_gasket_groove_cut();
+        lid_latch_groove_cut();
         v2_lid_engraving_cut();
     }
 }

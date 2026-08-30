@@ -7,7 +7,7 @@
   humidity-pack envelopes in config.scad.
 
   One complete tray is modeled from two reed faces and one core. The three
-  support-free components are the intended V2 print workflow.
+  support-free components are the intended prototype print workflow.
 */
 
 include <../lib/geometry.scad>

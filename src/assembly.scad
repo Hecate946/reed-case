@@ -77,6 +77,25 @@ module pack_placeholder() {
         rounded_prism([boveda_w, boveda_d, boveda_h], 2.0);
 }
 
+module boveda_size_60_placeholder() {
+    color([0.72, 0.56, 0.28, 0.92])
+        rounded_prism([boveda_size_60_w,
+                       boveda_size_60_d,
+                       boveda_size_60_h_preview],
+                      boveda_size_60_corner_r_preview);
+
+    // Preview-only label makes the scale object unmistakable. It is never
+    // included in any printable STL export.
+    color([0.30, 0.22, 0.11])
+        translate([0, 0, boveda_size_60_h_preview + epsilon])
+            linear_extrude(height = 0.12)
+                text("BOVEDA SIZE 60",
+                     size = 8.0,
+                     font = "Liberation Sans:style=Bold",
+                     halign = "center",
+                     valign = "center");
+}
+
 module populated_tray() {
     color(tray_white) tray();
     translate([0, tray_pack_seated_y, (tray_core_h - boveda_h) / 2])
@@ -121,22 +140,166 @@ module lid_open_position(angle = v2_open_angle) {
                     children();
 }
 
-module v2_closed(show_trays = true) {
+module bottom_case_view() {
+    // Bottom case only. The front mount strip appears at the bottom of the
+    // OpenSCAD view, matching the supplied sketch. Orange mounts are the actual
+    // printable solids already fused into case_base, not debug placeholders.
+    rotate([0, 0, 180]) {
+        color(case_teal) case_base_body();
+        color([0.82, 0.48, 0.12]) installed_leaf_spring_mounts();
+        color([0.24, 0.50, 0.56]) installed_latch_guides();
+        color([0.70, 0.58, 0.28]) installed_latch_piece();
+    }
+}
+
+module bottom_case_shell_view() {
+    // Printable base with its front-wall button opening, but without the
+    // separate moving latch component installed. The bottom floor stays intact.
+    rotate([0, 0, 180]) color(case_teal) case_base();
+}
+
+module bottom_case_latch_fit_view() {
+    // Transparent fit view shows the intact floor and front-wall button opening
+    // around the separately colored moving component.
+    rotate([0, 0, 180]) {
+        color([case_teal[0], case_teal[1], case_teal[2], 0.35]) case_base();
+        color([0.70, 0.58, 0.28]) installed_latch_piece();
+    }
+}
+
+module bottom_case_latch_pressed_view() {
+    // Maximum inward position created by either the closing lid wall or a
+    // finger pressing the exterior button. The hook is fully retracted.
+    rotate([0, 0, 180]) {
+        color([case_teal[0], case_teal[1], case_teal[2], 0.35]) case_base();
+        color([0.82, 0.62, 0.24])
+            installed_latch_piece(latch_inward_travel);
+    }
+}
+
+module latch_system_detail_view(inward_travel = 0, lid_lift = 0) {
+    // Isolated hook/groove relationship. The translucent blue shape is only the
+    // empty groove volume. lid_lift previews the uncompressed seal position;
+    // returning the hook outward lowers the lid by exactly latch_draw_down.
+    rotate([0, 0, 180]) {
+        color([0.82, 0.62, 0.24])
+            installed_latch_piece(inward_travel);
+        color([0.25, 0.55, 0.78, 0.40])
+            translate([0, 0, lid_lift])
+                lid_closed_position()
+                    lid_latch_groove_volume();
+    }
+}
+
+module top_lid_latch_structure_view() {
+    // Center-front section of the actual printable lid in its natural print
+    // orientation. The blue overlay identifies the empty recessed groove; no
+    // striker or other catch protrudes from the lid.
+    section_w = 38;
+    section_d = 17;
+
+    color([case_teal[0], case_teal[1], case_teal[2], 0.30])
+        intersection() {
+            case_lid();
+            translate([-section_w / 2,
+                       v2_case_d / 2 - section_d,
+                       0])
+                cube([section_w, section_d, v2_lid_h + epsilon]);
+        }
+    color([0.25, 0.55, 0.78, 0.40]) lid_latch_groove_volume();
+}
+
+module bottom_case_boveda_size_60_view() {
+    // Bare bottom tray shell with one official-footprint Size 60 packet centered
+    // on the interior floor. The latch and spring mounts are intentionally
+    // hidden in this scale-only view. Long side runs left-to-right.
+    rotate([0, 0, 180]) {
+        color(case_teal) case_base_body();
+        translate([0, 0, v2_base_floor_t])
+            boveda_size_60_placeholder();
+    }
+}
+
+module latch_fit_interference_check(inward_travel = 0) {
+    // Expected to render empty. Kept as a private CLI verification route so
+    // future parameter edits can detect latch/base collisions immediately.
+    intersection() {
+        case_base();
+        installed_latch_piece(inward_travel);
+    }
+}
+
+module latch_groove_engagement_check(inward_travel = 0, lid_lift = 0) {
+    // Locked should be non-empty because the hook occupies the groove. Fully
+    // pressed should be empty because the hook retracts behind the lid wall.
+    intersection() {
+        installed_latch_piece(inward_travel);
+        translate([0, 0, lid_lift])
+            lid_closed_position()
+                lid_latch_groove_volume();
+    }
+}
+
+module latch_complete_lid_interference_check(inward_travel = 0,
+                                             lid_lift = 0) {
+    // Expected to render empty; checks the hook against the complete closed lid
+    // after the recessed groove has been subtracted.
+    intersection() {
+        installed_latch_piece(inward_travel);
+        translate([0, 0, lid_lift])
+            lid_closed_position()
+                case_lid();
+    }
+}
+
+module latch_draw_path_sample_interference_check(i) {
+    fraction = i / 4;
+    travel = latch_hook_contact_travel -
+             fraction * (latch_hook_contact_travel -
+                         latch_hook_land_travel);
+    lift = latch_draw_down *
+           (travel - latch_hook_land_travel) /
+           (latch_hook_contact_travel - latch_hook_land_travel);
+    latch_complete_lid_interference_check(travel, lift);
+}
+
+module latch_draw_path_interference_check() {
+    // Five exact samples along the active pull-down ramp. Expected to render
+    // empty; verifies that the profiled hook and groove maintain clearance
+    // throughout the 0.60 mm lid draw rather than only at both endpoints.
+    for (i = [0 : 4])
+        latch_draw_path_sample_interference_check(i);
+}
+
+module leaf_spring_mount_pair_view() {
+    // Standalone exact-mirror stepped solids for quick iteration.
+    color([0.82, 0.48, 0.12]) {
+        translate([leaf_spring_mount_centers_x[0], 0, 0])
+            left_leaf_spring_mount();
+        translate([leaf_spring_mount_centers_x[1], 0, 0])
+            right_leaf_spring_mount();
+    }
+}
+
+module case_closed_view(show_trays = true) {
     color(case_teal) case_base();
+    color([0.70, 0.58, 0.28]) installed_latch_piece();
     if (show_trays) seated_trays(false);
     lid_closed_position() color(case_teal) case_lid();
     hinge_pin_placeholder();
 }
 
-module v2_open(show_contents = true) {
+module case_open_view(show_contents = true) {
     color(case_teal) case_base();
+    color([0.70, 0.58, 0.28]) installed_latch_piece();
     seated_trays(show_contents);
     lid_open_position() color(case_teal) case_lid();
     hinge_pin_placeholder();
 }
 
-module v2_exploded(show_contents = false) {
+module case_exploded_view(show_contents = false) {
     color(case_teal) case_base();
+    color([0.70, 0.58, 0.28]) installed_latch_piece();
 
     for (x = [-v2_tray_x, v2_tray_x])
         translate([x, v2_tray_y,
@@ -148,16 +311,17 @@ module v2_exploded(show_contents = false) {
             color(case_teal) case_lid();
 }
 
-module v2_closed_front() {
-    rotate([0, 0, 180]) v2_closed(true);
+module case_closed_front_view() {
+    rotate([0, 0, 180]) case_closed_view(true);
 }
 
-module v2_base_fit() {
+module bottom_case_with_trays_view() {
     color(case_teal) case_base();
+    color([0.70, 0.58, 0.28]) installed_latch_piece();
     seated_trays(false);
 }
 
-module v2_seal_view() {
+module lid_seal_view() {
     color(case_teal) case_lid();
     gasket_placeholder();
 }
@@ -169,12 +333,64 @@ module print_layout() {
 }
 
 module render_selected(which) {
-    if (which == "v2_open") v2_open(true);
-    else if (which == "v2_closed") v2_closed(true);
-    else if (which == "v2_exploded") v2_exploded(true);
-    else if (which == "v2_closed_front") v2_closed_front();
-    else if (which == "v2_base_fit") v2_base_fit();
-    else if (which == "v2_seal") v2_seal_view();
+    if (which == "case_open") case_open_view(true);
+    else if (which == "case_closed") case_closed_view(true);
+    else if (which == "case_exploded") case_exploded_view(true);
+    else if (which == "case_closed_front") case_closed_front_view();
+    else if (which == "bottom_case_with_trays") bottom_case_with_trays_view();
+    else if (which == "bottom_case") bottom_case_view();
+    else if (which == "bottom_case_shell") bottom_case_shell_view();
+    else if (which == "bottom_case_latch_fit") bottom_case_latch_fit_view();
+    else if (which == "bottom_case_latch_pressed" ||
+             which == "bottom_case_latch_cammed")
+        bottom_case_latch_pressed_view();
+    else if (which == "bottom_case_boveda_size_60")
+        bottom_case_boveda_size_60_view();
+    else if (which == "latch_piece") latch_piece();
+    else if (which == "latch_groove_lock_detail" ||
+             which == "latch_draw_lock_detail" ||
+             which == "latch_lock_detail")
+        latch_system_detail_view(0, 0);
+    else if (which == "latch_groove_closing_entry" ||
+             which == "latch_closing_entry_detail")
+        latch_system_detail_view(latch_inward_travel, latch_draw_down);
+    else if (which == "latch_button_release_detail" ||
+             which == "latch_release_detail")
+        latch_system_detail_view(latch_inward_travel, 0);
+    else if (which == "top_lid_latch_groove" ||
+             which == "top_lid_latch_structure")
+        top_lid_latch_structure_view();
+    else if (which == "_latch_fit_interference")
+        latch_fit_interference_check();
+    else if (which == "_latch_pressed_base_interference")
+        latch_fit_interference_check(latch_inward_travel);
+    else if (which == "_latch_groove_locked_engagement")
+        latch_groove_engagement_check(0, 0);
+    else if (which == "_latch_groove_pressed_engagement")
+        latch_groove_engagement_check(latch_inward_travel, 0);
+    else if (which == "_latch_complete_lid_locked_interference")
+        latch_complete_lid_interference_check(0, 0);
+    else if (which == "_latch_complete_lid_entry_interference")
+        latch_complete_lid_interference_check(latch_inward_travel,
+                                              latch_draw_down);
+    else if (which == "_latch_complete_lid_released_interference")
+        latch_complete_lid_interference_check(latch_inward_travel, 0);
+    else if (which == "_latch_draw_path_interference")
+        latch_draw_path_interference_check();
+    else if (which == "_latch_draw_path_0")
+        latch_draw_path_sample_interference_check(0);
+    else if (which == "_latch_draw_path_1")
+        latch_draw_path_sample_interference_check(1);
+    else if (which == "_latch_draw_path_2")
+        latch_draw_path_sample_interference_check(2);
+    else if (which == "_latch_draw_path_3")
+        latch_draw_path_sample_interference_check(3);
+    else if (which == "_latch_draw_path_4")
+        latch_draw_path_sample_interference_check(4);
+    else if (which == "leaf_spring_mount_pair") leaf_spring_mount_pair_view();
+    else if (which == "left_leaf_spring_mount") left_leaf_spring_mount();
+    else if (which == "right_leaf_spring_mount") right_leaf_spring_mount();
+    else if (which == "lid_seal") lid_seal_view();
     else if (which == "case_base") case_base();
     else if (which == "case_lid") case_lid();
     else if (which == "tray") tray();
