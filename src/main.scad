@@ -1,42 +1,23 @@
-// Interactive entry point. HECATE946 is now the default enclosure preview.
-// The original Premium-20 and Size-60 presets remain available.
-preset = "hecate946"; // "hecate946", "behn_premium20", "size60_studio"
+/* Interactive OpenSCAD entry point.
 
-// HECATE946
-// Fit-inspection views (actual Behn trays, not simplified blocks):
-// preview_part = "hecate946_nested";
-preview_part = "hecate946_nested_exploded";
-// preview_part = "hecate946_one_tray_fit";
+   Change `view` to inspect the design. Functional dimensions live only in
+   config.scad.
+*/
 
-// Individual / enclosure views:
-// preview_part = "hecate946_base";
-// preview_part = "hecate946_lid";
-// preview_part = "hecate946_hinge_coupon";
-// preview_part = "hecate946_seal_view";
-// preview_part = "hecate946_layout";
-// preview_part = "hecate946_assembly";
+mesh_profile = "fine"; // "prototype" or "fine"
+view = "v2_seal"; // "v2_open", "v2_closed", "v2_exploded", "v2_closed_front", "v2_base_fit", "v2_seal", "tray", "print_layout"
 
-// Existing tray / reference shell parts
-// preview_part = "behn_tray_face_a";
-// preview_part = "behn_tray_face_b";
-// preview_part = "reed_plate";
-// preview_part = "behn_tray_core";
-// preview_part = "behn_tray";
-// preview_part = "populated_behn_tray";
-// preview_part = "pack_insertion_demo";
-// preview_part = "patent_tray_exploded";
-// preview_part = "behn_tray_stack";
-// preview_part = "base";
-// preview_part = "lid";
-// preview_part = "hinge_pin";
-// preview_part = "latch_clip";
-// preview_part = "gasket_coupon";
-// preview_part = "tolerance_coupon";
-// preview_part = "print_layout";
-// preview_part = "exploded";
-// preview_part = "assembly";
+// Useful views:
+// view = "v2_open";
+// view = "v2_closed";
+// view = "v2_exploded";
+// view = "v2_closed_front";
+// view = "v2_base_fit";
+// view = "v2_seal";
+// view = "tray";
+// view = "print_layout";
 
 include <config.scad>
 include <assembly.scad>
 
-render_selected(preview_part);
+render_selected(view);

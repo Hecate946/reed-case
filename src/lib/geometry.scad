@@ -29,11 +29,11 @@ module rounded_cup(w, d, h, r, wall_t, bottom_t) {
 }
 
 module top_chamfered_extrude(height, chamfer = 0.20, steps = 3) {
-    // Cheap printable micro-chamfer built as a few 2D inset layers. This keeps
-    // exact STL rendering tractable in OpenSCAD 2021 (a 3D hull here is very
-    // expensive once the tray contains hundreds of ventilation apertures).
+    // Fine meshes keep the small top-edge chamfer. Prototype meshes omit this
+    // sub-nozzle cosmetic detail; doing so cuts tray export time dramatically
+    // without changing any functional fit.
     assert(height > 0);
-    c = min(max(chamfer, 0), height / 2);
+    c = is_fast_mesh ? 0 : min(max(chamfer, 0), height / 2);
     n = max(steps, 1);
     if (c <= 0)
         linear_extrude(height = height) children();

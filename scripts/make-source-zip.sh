@@ -2,31 +2,25 @@
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-PROJECT_NAME="$(basename "$ROOT")"
-STAMP="$(date +"%Y%m%d-%H%M%S")"
-OUT="$ROOT/${PROJECT_NAME}-source-${STAMP}.zip"
+OUT="$ROOT/reed-case-source.zip"
 
 cd "$ROOT"
+rm -f -- "$OUT"
 
-zip -r "$OUT" . \
+zip -qr "$OUT" . \
   -x ".git/*" \
      ".git/**" \
-     ".vscode/*" \
-     ".vscode/**" \
-     "exports/*" \
-     "exports/**" \
      "build/*" \
      "build/**" \
      "*.stl" \
      "*.3mf" \
      "*.amf" \
-     "*.off" \
+     "*.csg" \
+     "*.png" \
      "*.zip" \
      "*~" \
      "*.swp" \
      "*.tmp" \
      ".DS_Store"
 
-echo
-echo "Created:"
-echo "$OUT"
+printf 'Created %s\n' "$OUT"

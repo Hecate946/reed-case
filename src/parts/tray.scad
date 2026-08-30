@@ -6,8 +6,8 @@
   follows the disclosure; dimensions are fitted to the configured reed and
   humidity-pack envelopes in config.scad.
 
-  One complete tray is modeled from two reed faces and one core; the library
-  exporter can fuse those regions into one permanently assembled print.
+  One complete tray is modeled from two reed faces and one core. The three
+  support-free components are the intended V2 print workflow.
 */
 
 include <../lib/geometry.scad>
@@ -100,7 +100,7 @@ module patent_ventilation_apertures_2d(hole_d = tray_air_hole_d) {
         x_offset = (col - (tray_air_columns - 1) / 2) *
                    aperture_column_pitch();
         translate([lane_x(i) + x_offset, aperture_y(row)])
-            circle(d = hole_d, $fn = is_library_fdm ? 16 : ($preview ? 16 : 24));
+            circle(d = hole_d, $fn = is_fast_mesh ? 8 : ($preview ? 16 : 24));
     }
 }
 
@@ -136,7 +136,7 @@ module patent_lane_number_engraving(first_lane = 1) {
     // onto world +Z, which is what an observer at -Y reads as left-to-right
     // and upright. That same rotation sends the extrusion to -Y, so the
     // block is placed one depth proud of the wall and cuts back into it.
-    if (lane_numbers_enable)
+    if (lane_numbers_enable && !is_fast_mesh)
         for (i = [0 : reeds_per_face - 1])
             translate([lane_x(i),
                        tip_stop_inner_y() + lane_number_depth,
@@ -148,7 +148,7 @@ module patent_lane_number_engraving(first_lane = 1) {
                                  font = lane_number_font,
                                  halign = "center",
                                  valign = "center",
-                                 $fn = is_library_fdm ? 16 : ($preview ? 16 : 32));
+                                 $fn = is_fast_mesh ? 16 : ($preview ? 16 : 32));
 }
 
 module patent_perforated_layer(z, h, hole_d, outline_inset = 0) {
@@ -168,12 +168,11 @@ module patent_perforated_layer(z, h, hole_d, outline_inset = 0) {
 
 module patent_perforated_platform() {
     // Production keeps the tiny stepped relief around every ventilation hole.
-    // A 0.18 mm rim relief is below what a typical 0.4 mm-nozzle library FDM
-    // printer can reproduce consistently, while it makes OpenSCAD 2021 spend
-    // several extra minutes unioning hundreds of tiny loops.  The library
-    // profile therefore exports the SAME 1.60 mm functional holes as one flat
-    // sheet.  Nothing affecting reed, Boveda, band, or magnet fit changes.
-    if (is_library_fdm) {
+    // A 0.18 mm rim relief is below what a typical 0.4 mm-nozzle FDM printer
+    // can reproduce consistently. Prototype meshes therefore export the same
+    // 1.60 mm functional holes as one flat sheet; fine meshes retain the
+    // cosmetic edge relief.
+    if (is_fast_mesh) {
         patent_perforated_layer(0, tray_face_t, tray_air_hole_d, 0);
     } else {
         relief_step_h = tray_air_edge_relief_h / tray_air_edge_steps;
@@ -234,7 +233,7 @@ module patent_guide_end_runout() {
     y0 = -tray_d / 2 - epsilon;
     z0 = tray_face_t;
     z_top = z0 + h + 1.0;
-    steps = is_library_fdm ? 16 : ($preview ? 10 : 24);
+    steps = is_fast_mesh ? 8 : ($preview ? 10 : 24);
     span = tray_w + 20;
 
     if (L > 0)
@@ -273,7 +272,7 @@ module patent_longitudinal_stock_rails() {
                            y,
                            tray_face_t])
                     scale([1, 1, rail_h / end_radius])
-                        sphere(d = rail_w, $fn = is_library_fdm ? 16 : ($preview ? 16 : 32));
+                        sphere(d = rail_w, $fn = is_fast_mesh ? 12 : ($preview ? 16 : 32));
 }
 
 module patent_reed_tip_stop() {
@@ -353,7 +352,7 @@ module patent_band_notches() {
             rotate([0, 90, 0])
                 cylinder(r = band_groove_r(),
                          h = tray_w + 2 * epsilon,
-                         $fn = is_library_fdm ? 20 : ($preview ? 24 : 48));
+                         $fn = is_fast_mesh ? 20 : ($preview ? 24 : 48));
         // Square off everything above the seat so the mouth is open to the
         // top face instead of leaving a lip the cord has to snap past.
         translate([0, band_y(gap),
@@ -449,7 +448,7 @@ module behn_tray_core() {
                     // Equal-radius cap on both sides of the rail end.
                     translate([rail_x, cap_center_y])
                         circle(r = mouth_cap_r,
-                               $fn = is_library_fdm ? 32 : ($preview ? 32 : 64));
+                               $fn = is_fast_mesh ? 32 : ($preview ? 32 : 64));
                 }
                 }
             }
@@ -466,80 +465,20 @@ module behn_tray_face_a() { behn_tray_face(1); }
 // magnet/steel assignment is intentionally not encoded in the printed part.
 module behn_tray_face_b() { behn_tray_face(reeds_per_face + 1); }
 
-// Positive overlap used only by the monolithic export. The three-piece
-// construction can meet at exact planes, but a one-piece STL should contain
-// actual shared volume so slicers cannot interpret the interfaces as shells.
-tray_monolithic_fuse = 0.15;
-
-module behn_tray_interface_fusers(overlap = tray_monolithic_fuse) {
-    // Copy a thin slice of the core through each mating face. These slices
-    // occupy material that is already inside the face sheets, so they create
-    // a true boolean union without changing the external dimensions or the
-    // Boveda opening.
-    translate([0, 0, -overlap])
-        intersection() {
-            behn_tray_core();
-            translate([-tray_body_w, -tray_d, 0])
-                cube([2 * tray_body_w, 2 * tray_d, overlap]);
-        }
-
-    translate([0, 0, overlap])
-        intersection() {
-            behn_tray_core();
-            translate([-tray_body_w, -tray_d, tray_core_h - overlap])
-                cube([2 * tray_body_w, 2 * tray_d, overlap]);
-        }
-}
-
-
-module behn_tray_core_monolithic() {
-    // Same XY geometry as the normal core, extended 0.15 mm into each face.
-    // This does NOT narrow the Boveda tunnel; only the solid core rails/ribs
-    // enter the face sheets. The overlap guarantees the one-file library STL
-    // slices as one permanently fused physical part.
-    translate([0, 0, -tray_monolithic_fuse])
-        scale([1, 1,
-               (tray_core_h + 2 * tray_monolithic_fuse) / tray_core_h])
-            behn_tray_core();
-}
-
-module behn_tray_one_piece() {
-    // Finished, permanently fused double-sided tray. Pre-render each major
-    // region into a clean CGAL mesh before the final union. This keeps the
-    // final Boolean to three modest polyhedra instead of asking CGAL to
-    // re-evaluate every ventilation-hole primitive at once.
-    union() {
-        render(convexity = 20) behn_tray_core_monolithic();
-        translate([0, 0, tray_core_h])
-            render(convexity = 20) behn_tray_face_a();
-        rotate([0, 180, 0])
-            render(convexity = 20) behn_tray_face_b();
-    }
-}
-
-module behn_tray_one_piece_library_oriented() {
-    // A 45-degree long-edge orientation avoids the ~72 mm horizontal bridge
-    // over the Boveda tunnel that a flat monolithic print would create. It
-    // also turns the two outward reed faces into ~45-degree overhangs. The
-    // slicer should add a generous brim, but should NOT auto-lay-flat this STL.
-    a = 45;
-    lift = (tray_body_w * sin(a) + tray_total_h * cos(a)) / 2;
-    translate([0, 0, lift])
-        rotate([0, a, 0])
-            translate([0, 0, -tray_core_h / 2])
-                behn_tray_one_piece();
-}
 
 module behn_tray() {
-    color([0.16, 0.18, 0.21]) behn_tray_core();
-    color([0.20, 0.22, 0.25])
+    color([0.94, 0.94, 0.92]) behn_tray_core();
+    color([0.98, 0.98, 0.96])
         translate([0, 0, tray_core_h]) behn_tray_face_a();
     // The lower face is rotated about Y, not mirrored: a reflection is not a
     // physical operation. The rotation keeps the reed-tip end at the tip end
     // and the engraved digits reading correctly from below.
-    color([0.20, 0.22, 0.25])
+    color([0.98, 0.98, 0.96])
         rotate([0, 180, 0]) behn_tray_face_b();
 }
 
-// Backward-compatible aliases for the original preview names.
-module reed_plate() { behn_tray_face_a(); }
+// Public tray API. Keep the implementation names above private to this file.
+module tray_face_a() { behn_tray_face_a(); }
+module tray_face_b() { behn_tray_face_b(); }
+module tray_core() { behn_tray_core(); }
+module tray() { behn_tray(); }

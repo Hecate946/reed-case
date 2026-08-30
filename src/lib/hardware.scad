@@ -15,7 +15,7 @@ module magnet_pocket(d = tray_magnet_d, h = tray_magnet_h) {
     pocket_h = h + magnet_h_clearance + epsilon;
     c = min(magnet_entry_chamfer, pocket_h / 3);
 
-    pocket_fn = is_library_fdm ? 32 : $fn;
+    pocket_fn = is_fast_mesh ? 16 : $fn;
 
     union() {
         cylinder(d = pocket_d, h = pocket_h, $fn = pocket_fn);

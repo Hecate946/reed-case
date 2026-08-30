@@ -1,117 +1,122 @@
 # Reed case CAD
 
-OpenSCAD source for a humidity-controlled clarinet reed case.
+OpenSCAD source for the **V2 premium-style clarinet reed case prototype**.
+The project is intentionally small: one tray design, one enclosure design, one
+configuration file, and one source-zip script.
 
-The default preview is now the **HECATE946** enclosure: two of the current
-five-lane double-sided reed trays nested side-by-side, plus a provisional
-humidity-reader bay at the far left. The original Premium-20 reference shell
-and Size-60 preset remain available.
+## V2 concept
 
-## HECATE946 case
+- compact **190 x 97 x 24.5 mm** two-tray enclosure
+- no hygrometer bay yet; the sensor will be integrated only after the case is right
+- two removable double-sided 10-reed trays
+- four D4x2 retention points per tray
+- replaceable **2 mm metal hinge pin** with alternating printed knuckles
+- dual printed click latches for testing closure feel
+- continuous **2 x 170 mm silicone O-ring** prototype seal
+- shallow `HECATE946` lid engraving, controlled from `src/config.scad`
+- dark-teal shell / white-tray colors in OpenSCAD previews only
 
-Open `src/main.scad`. It now defaults to the **nested-trays fit view**, so you
-can see both complete Behn trays seated inside the HECATE946 base. Additional
-selectable views at the top of `main.scad` include:
+The plastic V2 is a design-validation prototype. The final aluminum case should
+use production-specific hinge/latch hardware after the dimensions and feel are
+frozen.
 
-- `hecate946_nested` — both real trays seated in the base
-- `hecate946_nested_exploded` — both trays lifted above their wells
-- `hecate946_one_tray_fit` — one bay exposed and one tray seated
-- `hecate946_assembly` — complete closed enclosure
-- `hecate946_seal_view` — lid with the standard O-ring path highlighted
-- `hecate946_hinge_coupon` — three snap-mouth fits for a real 2 mm rod
+## Files that matter
 
-Or run:
-
-```bash
-make preview-fit
+```text
+src/config.scad          dimensions + hardware + easy customization
+src/main.scad            interactive OpenSCAD preview
+src/assembly.scad        views and part routing
+src/parts/tray.scad      reed tray geometry
+src/parts/case.scad      V2 enclosure geometry
+src/parts/calibration.scad
+src/lib/                 small reusable geometry/hardware helpers
+Makefile                 all checks / exports
+scripts/make-source-zip.sh
 ```
 
-Current HECATE946 shell:
+## Normal workflow
 
-- 214.0 x 97.0 x 25.0 mm body
-- two exact 88.70 x 87.50 mm tray footprints side-by-side
-- 0.40 mm clearance around each tray in a 0.60 mm-deep locating well
-- provisional 22 x 50 mm humidity-reader recess at far left
-- two 2.20 mm full-height structural divider walls: one between the reader bay
-  and first tray, and one between the two tray bays; both run from the interior
-  floor to the base seam
-- both Behn trays oriented with their open reed-insertion ends facing the front
-  click-latch/opening side
-- eight 4.20 x 2.15 mm case-floor hardware pockets aligned exactly with the
-  four pockets on each tray
-- continuous groove for a standard **185 mm ID x 2 mm CS silicone O-ring**,
-  installed at about 1.8% stretch and ~25% nominal compression
-- two integrated front click latches
-- minimal snap-on hinge: four short base bearings retain a **2.0 mm stainless
-  rod**, while three C-clips on the lid snap onto the exposed metal axle
+Open `src/main.scad` in OpenSCAD. The default is the fine-mesh exploded V2 view.
+The file intentionally keeps every useful `view = ...` option commented directly
+below the active line so switching views stays one-line simple:
 
-See `docs/HECATE946_CASE.md` for the detailed dimensions and rationale.
-
-Export the shell and the small hinge-fit coupon with:
-
-```bash
-make stl-hecate946
+```text
+v2_open
+v2_closed
+v2_exploded
+v2_closed_front
+v2_base_fit
+v2_seal
+tray
+print_layout
 ```
 
-## Current five-lane tray
+All functional dimensions are in `src/config.scad`.
 
-The tray design itself is unchanged by the new enclosure. One complete tray
-uses:
 
-- `behn_tray_face_a`
-- `behn_tray_face_b`
-- `behn_tray_core`
+### Reed reference model
 
-Key dimensions:
+Preview reeds use the footprint and thickness envelope of a French/Boehm Bb
+clarinet reed: **67.5 mm long, 13.15 mm maximum width, 11.0 mm heel width,
+34.1 mm vamp, 3.05 mm nominal heel thickness, and 0.10 mm tip thickness**.
+The intended reference is the Vandoren Traditional Bb strength 3.5 (CR1035).
+Vandoren identifies that product/strength but does not publish its proprietary
+full manufacturing profile, so the preview uses documented clarinet-reed
+measurements for fit and clearance rather than claiming an exact factory cut.
 
-- complete tray: about 88.70 x 87.50 x 15.90 mm
-- five 14.30 mm-clear reed passages per face
-- Boveda Size 8 opening: 71.85 mm wide x 5.10 mm high
-- two equal-height grooves for 2.0 mm round silicone cord/O-rings
-- four identical 4.20 x 2.15 mm D4x2 hardware pockets on each face
-- rounded open-end guide runouts and rounded Boveda-core mouth caps
-
-For the **library PLA prototype**, export the complete permanently fused tray
-as a single STL with:
-
-```bash
-make stl-tray
-```
-
-That writes `build/library-tray-one-piece/behn_tray_ONE_PIECE.stl`, a print
-note, and `STL_VALIDATION.txt`. OpenSCAD performs the final CGAL Boolean union
-before export, and the validation script refuses the file unless it is one
-connected watertight manifold with consistent winding. The STL is pre-oriented
-45 degrees on its long edge to avoid the
-large unsupported bridge that a flat one-piece print would create over the
-Boveda tunnel. Do not auto-orient or lay it flat in the slicer. The library
-profile preserves every functional dimension while omitting only sub-nozzle
-cosmetic hole-rim relief. The former three-part export remains available as
-`make stl-tray-parts`.
-
-The two HECATE946 bays use identical trays, so print **two copies** of the same
-tray set when you are ready to populate both sides of the case.
-
-## Useful commands
+### Export the prototype
 
 ```bash
 make check
-make check-tray           # fast compile/preflight of the one-piece tray
-make preview              # HECATE946 closed assembly CSG
-make preview-fit          # base + both detailed trays seated
-make preview-fit-exploded # lifted trays exposing wells/dividers
-make preview-seal         # lid + highlighted 2x185 O-ring path
-make stl-tray             # library-ready ONE-PIECE tray STL
-make stl-tray-parts       # legacy three-piece tray export
-make stl                  # production-mesh three-part tray
-make stl-hecate946        # HECATE946 base, lid, hinge coupon
-make stl-hecate946-all    # case + one tray set + calibration coupons
-make stl-all              # original Premium-20 parts
-make stl-size60           # one Size-60 tray set
-make stl-size60-all       # all Size-60 parts
-make clean
+make export
 ```
 
-Before a final-material print, physically verify reed fit, silicone tension,
-Boveda fit, D4x2 hardware fit, hinge-pin clearance, latch feel, and gasket
-sealing on the actual printer/material combination.
+The printable files are written to:
+
+```text
+build/v2-prototype/case_base.stl
+build/v2-prototype/case_lid.stl
+build/v2-prototype/tray-parts/tray_face_a.stl
+build/v2-prototype/tray-parts/tray_core.stl
+build/v2-prototype/tray-parts/tray_face_b.stl
+build/v2-prototype/fit_coupon.stl
+```
+
+The tray intentionally exports as **three support-free STLs**: face A, core,
+and face B. Print each of those files twice, then assemble two double-sided
+trays. This is the reliable cheap-prototype workflow; OpenSCAD becomes
+unnecessarily slow when Boolean-unioning the hundreds of ventilation features
+into a single monolithic STL. Do not glue a tray until the real Boveda pack has
+been test-fitted.
+
+### Quick visual render
+
+```bash
+make render
+```
+
+This writes the open, closed, front, exploded, tray-fit, and seal views to `build/renders/`.
+
+### Share the latest source
+
+```bash
+make zip
+```
+
+This always replaces one file at the project root:
+
+```text
+reed-case-source.zip
+```
+
+Upload that ZIP when you want another design/code pass. There are no dated or
+numbered source archives created by the project.
+
+## First physical V2 test
+
+Use inexpensive PLA/PETG. Before committing to a long print, print
+`fit_coupon.stl` and verify the actual 2 mm hinge rod and D4x2 hardware fit.
+For the complete prototype, install the real hinge pin, magnets/steel targets,
+silicone cord used for reed retention, and the intended O-ring. Evaluate the
+case size, reed access, tray removal, magnet feel, latch force, hinge feel, and
+seal compression before changing anything for CNC aluminum.
