@@ -4,7 +4,7 @@ BUILD := build
 PROFILE ?= prototype
 OUT := $(BUILD)/reed-case-prototype
 
-.PHONY: help check preview render export export-case export-latch export-mounts export-tray export-tray-parts export-fit zip clean
+.PHONY: help check preview render export export-case export-latch export-mounts export-tray export-tray-full export-tray-face-a export-tray-core export-tray-face-b export-tray-parts export-fit zip clean
 
 help: ## Show available commands
 	@awk 'BEGIN {FS = ":.*## "}; /^[a-zA-Z0-9_-]+:.*## / {printf "%-18s %s\n", $$1, $$2}' $(MAKEFILE_LIST)
@@ -86,6 +86,31 @@ export-mounts: ## Export both mirrored mount components separately for tweaking
 	done
 
 export-tray: export-tray-parts ## Export one support-free tray set as three STLs
+
+export-tray-full: ## Export the complete assembled tray as one STL
+	@mkdir -p $(OUT)/tray
+	@echo "Exporting complete tray"
+	$(OPENSCAD) --export-format binstl -o "$(CURDIR)/$(OUT)/tray/tray_complete.stl" \
+		-D 'mesh_profile="$(PROFILE)"' -D 'part="tray"' $(SOURCE)
+	@echo "Wrote $(OUT)/tray/tray_complete.stl"
+
+export-tray-face-a: ## Export only tray face A
+	@mkdir -p $(OUT)/tray
+	$(OPENSCAD) --export-format binstl -o "$(CURDIR)/$(OUT)/tray/tray_face_a.stl" \
+		-D 'mesh_profile="$(PROFILE)"' -D 'part="tray_face_a"' $(SOURCE)
+	@echo "Wrote $(OUT)/tray/tray_face_a.stl"
+
+export-tray-core: ## Export only the tray core
+	@mkdir -p $(OUT)/tray
+	$(OPENSCAD) --export-format binstl -o "$(CURDIR)/$(OUT)/tray/tray_core.stl" \
+		-D 'mesh_profile="$(PROFILE)"' -D 'part="tray_core"' $(SOURCE)
+	@echo "Wrote $(OUT)/tray/tray_core.stl"
+
+export-tray-face-b: ## Export only tray face B
+	@mkdir -p $(OUT)/tray
+	$(OPENSCAD) --export-format binstl -o "$(CURDIR)/$(OUT)/tray/tray_face_b.stl" \
+		-D 'mesh_profile="$(PROFILE)"' -D 'part="tray_face_b"' $(SOURCE)
+	@echo "Wrote $(OUT)/tray/tray_face_b.stl"
 
 export-tray-parts: ## Export tray face A + core + face B
 	@mkdir -p $(OUT)/tray-parts

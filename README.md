@@ -191,6 +191,35 @@ Vandoren identifies that product/strength but does not publish its proprietary
 full manufacturing profile, so the preview uses documented clarinet-reed
 measurements for fit and clearance rather than claiming an exact factory cut.
 
+### Easy tray exports
+
+From the project root, use whichever one you need:
+
+```bash
+make export-tray-full    # complete assembled tray -> one STL
+make export-tray-face-a  # only face A
+make export-tray-core    # only the core
+make export-tray-face-b  # only face B
+make export-tray         # all three separate tray parts
+```
+
+By default these use the fast prototype mesh. For the final/high-quality mesh, add `PROFILE=fine`:
+
+```bash
+make export-tray-full PROFILE=fine
+```
+
+The single-part outputs are written to:
+
+```text
+build/reed-case-prototype/tray/tray_complete.stl
+build/reed-case-prototype/tray/tray_face_a.stl
+build/reed-case-prototype/tray/tray_core.stl
+build/reed-case-prototype/tray/tray_face_b.stl
+```
+
+Run `make help` at any time to see every available command.
+
 ### Export the prototype
 
 ```bash
