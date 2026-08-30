@@ -44,17 +44,6 @@ module v2_floor_hardware_pockets(x0) {
             magnet_pocket();
 }
 
-module v2_thumb_scoop(x) {
-    // Small recess under the front edge of each tray. It never reaches the
-    // exterior wall, so it does not compromise the sealed shell.
-    translate([x,
-               v2_tray_y + v2_tray_recess_d / 2 - 1.4,
-               v2_base_floor_t - v2_tray_recess_depth - 0.75])
-        cylinder(d = 16,
-                 h = v2_tray_recess_depth + 1.50 + epsilon,
-                 $fn = is_fast_mesh ? 32 : 64);
-}
-
 function v2_hinge_knuckle_x(i) =
     -v2_hinge_usable / 2 + v2_hinge_knuckle_len / 2 +
     i * (v2_hinge_knuckle_len + v2_hinge_gap);
@@ -134,7 +123,6 @@ module case_base_body() {
         for (x = [-v2_tray_x, v2_tray_x]) {
             v2_tray_well_cut(x);
             v2_floor_hardware_pockets(x);
-            v2_thumb_scoop(x);
         }
 
         latch_case_fit_openings();

@@ -77,6 +77,21 @@ module pack_placeholder() {
         rounded_prism([boveda_w, boveda_d, boveda_h], 2.0);
 }
 
+module boveda_size_8_placeholder(label = true) {
+    color([0.72, 0.56, 0.28, 0.92])
+        rounded_prism([boveda_w, boveda_d, boveda_h], 2.0);
+
+    if (label)
+        color([0.30, 0.22, 0.11])
+            translate([0, 0, boveda_h + epsilon])
+                linear_extrude(height = 0.12)
+                    text("BOVEDA SIZE 8",
+                         size = 5.0,
+                         font = "Liberation Sans:style=Bold",
+                         halign = "center",
+                         valign = "center");
+}
+
 module boveda_size_60_placeholder() {
     color([0.72, 0.56, 0.28, 0.92])
         rounded_prism([boveda_size_60_w,
@@ -206,6 +221,31 @@ module top_lid_latch_structure_view() {
                 cube([section_w, section_d, v2_lid_h + epsilon]);
         }
     color([0.25, 0.55, 0.78, 0.40]) lid_latch_groove_volume();
+}
+
+module bottom_case_two_boveda_size_8_view() {
+    // One Size 8 packet centered in each of the two tray-registration squares.
+    // The packet footprint is shown at full scale.
+    rotate([0, 0, 180]) {
+        color(case_teal) case_base_body();
+        for (x = [-v2_tray_x, v2_tray_x])
+            translate([x, v2_tray_y, v2_base_floor_t])
+                boveda_size_8_placeholder();
+    }
+}
+
+module bottom_case_three_boveda_size_8_view() {
+    // Three Size 8 packets side by side along the case width, rotated so their
+    // shorter 63.5 mm dimension runs left-to-right. This is intentionally
+    // full-scale, so any wall interference is visible rather than hidden.
+    packet_pitch = boveda_d;
+    rotate([0, 0, 180]) {
+        color(case_teal) case_base_body();
+        for (i = [-1, 0, 1])
+            translate([i * packet_pitch, 0, v2_base_floor_t])
+                rotate([0, 0, 90])
+                    boveda_size_8_placeholder();
+    }
 }
 
 module bottom_case_boveda_size_60_view() {
@@ -339,6 +379,10 @@ module render_selected(which) {
         bottom_case_latch_pressed_view();
     else if (which == "bottom_case_boveda_size_60")
         bottom_case_boveda_size_60_view();
+    else if (which == "bottom_case_two_boveda_size_8")
+        bottom_case_two_boveda_size_8_view();
+    else if (which == "bottom_case_three_boveda_size_8")
+        bottom_case_three_boveda_size_8_view();
     else if (which == "latch_piece") latch_piece();
     else if (which == "latch_groove_lock_detail" ||
              which == "latch_lock_detail")

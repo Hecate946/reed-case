@@ -5,11 +5,13 @@
 */
 
 mesh_profile = "fine"; // "prototype" or "fine"
-view = "bottom_case_boveda_size_60"; // "latch_groove_lock_detail", "latch_groove_closing_entry", "latch_button_release_detail", "top_lid_latch_groove", "latch_piece", "bottom_case", "bottom_case_boveda_size_60", "bottom_case_shell", "bottom_case_latch_fit", "bottom_case_latch_pressed", "leaf_spring_mount_pair", "left_leaf_spring_mount", "right_leaf_spring_mount", "case_open", "case_closed", "case_exploded", "case_closed_front", "bottom_case_with_trays", "lid_seal", "tray", "print_layout"
+view = "tray"; // "latch_groove_lock_detail", "latch_groove_closing_entry", "latch_button_release_detail", "top_lid_latch_groove", "latch_piece", "bottom_case", "bottom_case_boveda_size_60", "bottom_case_two_boveda_size_8", "bottom_case_three_boveda_size_8", "bottom_case_shell", "bottom_case_latch_fit", "bottom_case_latch_pressed", "leaf_spring_mount_pair", "left_leaf_spring_mount", "right_leaf_spring_mount", "case_open", "case_closed", "case_exploded", "case_closed_front", "bottom_case_with_trays", "lid_seal", "tray", "print_layout"
 
 // Useful views:
 // view = "bottom_case";
 // view = "bottom_case_boveda_size_60";
+// view = "bottom_case_two_boveda_size_8";
+// view = "bottom_case_three_boveda_size_8";
 // view = "bottom_case_shell";
 // view = "bottom_case_latch_fit";
 // view = "bottom_case_latch_pressed";
