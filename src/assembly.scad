@@ -147,7 +147,6 @@ module bottom_case_view() {
     rotate([0, 0, 180]) {
         color(case_teal) case_base_body();
         color([0.82, 0.48, 0.12]) installed_leaf_spring_mounts();
-        color([0.24, 0.50, 0.56]) installed_latch_guides();
         color([0.70, 0.58, 0.28]) installed_latch_piece();
     }
 }
@@ -178,9 +177,9 @@ module bottom_case_latch_pressed_view() {
 }
 
 module latch_system_detail_view(inward_travel = 0, lid_lift = 0) {
-    // Isolated hook/groove relationship. The translucent blue shape is only the
-    // empty groove volume. lid_lift previews the uncompressed seal position;
-    // returning the hook outward lowers the lid by exactly latch_draw_down.
+    // Isolated catch/groove relationship. The translucent blue shape is only
+    // the empty groove volume. lid_lift = 0 is the fully pressed lid; at rest
+    // the seal lifts it by latch_lid_rest_lift onto the flat catch underside.
     rotate([0, 0, 180]) {
         color([0.82, 0.62, 0.24])
             installed_latch_piece(inward_travel);
@@ -195,7 +194,7 @@ module top_lid_latch_structure_view() {
     // Center-front section of the actual printable lid in its natural print
     // orientation. The blue overlay identifies the empty recessed groove; no
     // striker or other catch protrudes from the lid.
-    section_w = 38;
+    section_w = 44;
     section_d = 17;
 
     color([case_teal[0], case_teal[1], case_teal[2], 0.30])
@@ -230,8 +229,8 @@ module latch_fit_interference_check(inward_travel = 0) {
 }
 
 module latch_groove_engagement_check(inward_travel = 0, lid_lift = 0) {
-    // Locked should be non-empty because the hook occupies the groove. Fully
-    // pressed should be empty because the hook retracts behind the lid wall.
+    // Locked should be non-empty because the catch occupies the groove. Fully
+    // pressed should be empty because the catch retracts behind the lid wall.
     intersection() {
         installed_latch_piece(inward_travel);
         translate([0, 0, lid_lift])
@@ -242,8 +241,8 @@ module latch_groove_engagement_check(inward_travel = 0, lid_lift = 0) {
 
 module latch_complete_lid_interference_check(inward_travel = 0,
                                              lid_lift = 0) {
-    // Expected to render empty; checks the hook against the complete closed lid
-    // after the recessed groove has been subtracted.
+    // Expected to render empty; checks the tongue against the complete closed
+    // lid after the recessed groove has been subtracted.
     intersection() {
         installed_latch_piece(inward_travel);
         translate([0, 0, lid_lift])
@@ -252,23 +251,17 @@ module latch_complete_lid_interference_check(inward_travel = 0,
     }
 }
 
-module latch_draw_path_sample_interference_check(i) {
-    fraction = i / 4;
-    travel = latch_hook_contact_travel -
-             fraction * (latch_hook_contact_travel -
-                         latch_hook_land_travel);
-    lift = latch_draw_down *
-           (travel - latch_hook_land_travel) /
-           (latch_hook_contact_travel - latch_hook_land_travel);
-    latch_complete_lid_interference_check(travel, lift);
-}
+function latch_closing_sample_lift(i) =
+    latch_catch_height * i / 5;
 
-module latch_draw_path_interference_check() {
-    // Five exact samples along the active pull-down ramp. Expected to render
-    // empty; verifies that the profiled hook and groove maintain clearance
-    // throughout the 0.60 mm lid draw rather than only at both endpoints.
-    for (i = [0 : 4])
-        latch_draw_path_sample_interference_check(i);
+module latch_closing_path_interference_check() {
+    // Six lid heights along the closing stroke with the latch held at full
+    // press. Expected to render empty: if the button can always be pushed all
+    // the way in, the lid can always come down.
+    for (i = [0 : 5])
+        latch_complete_lid_interference_check(
+            latch_inward_travel,
+            latch_closing_sample_lift(i));
 }
 
 module leaf_spring_mount_pair_view() {
@@ -348,12 +341,11 @@ module render_selected(which) {
         bottom_case_boveda_size_60_view();
     else if (which == "latch_piece") latch_piece();
     else if (which == "latch_groove_lock_detail" ||
-             which == "latch_draw_lock_detail" ||
              which == "latch_lock_detail")
-        latch_system_detail_view(0, 0);
+        latch_system_detail_view(0, latch_lid_rest_lift);
     else if (which == "latch_groove_closing_entry" ||
              which == "latch_closing_entry_detail")
-        latch_system_detail_view(latch_inward_travel, latch_draw_down);
+        latch_system_detail_view(0, 0);
     else if (which == "latch_button_release_detail" ||
              which == "latch_release_detail")
         latch_system_detail_view(latch_inward_travel, 0);
@@ -365,28 +357,21 @@ module render_selected(which) {
     else if (which == "_latch_pressed_base_interference")
         latch_fit_interference_check(latch_inward_travel);
     else if (which == "_latch_groove_locked_engagement")
-        latch_groove_engagement_check(0, 0);
+        latch_groove_engagement_check(0, latch_lid_rest_lift);
     else if (which == "_latch_groove_pressed_engagement")
         latch_groove_engagement_check(latch_inward_travel, 0);
     else if (which == "_latch_complete_lid_locked_interference")
-        latch_complete_lid_interference_check(0, 0);
+        // Seated on the flat land the two surfaces are exactly coplanar, so
+        // this samples one hair below the seat: any solid here is a real
+        // collision rather than the intended contact patch.
+        latch_complete_lid_interference_check(
+            0, latch_lid_rest_lift - latch_seat_check_relief);
     else if (which == "_latch_complete_lid_entry_interference")
-        latch_complete_lid_interference_check(latch_inward_travel,
-                                              latch_draw_down);
+        latch_complete_lid_interference_check(0, 0);
     else if (which == "_latch_complete_lid_released_interference")
         latch_complete_lid_interference_check(latch_inward_travel, 0);
-    else if (which == "_latch_draw_path_interference")
-        latch_draw_path_interference_check();
-    else if (which == "_latch_draw_path_0")
-        latch_draw_path_sample_interference_check(0);
-    else if (which == "_latch_draw_path_1")
-        latch_draw_path_sample_interference_check(1);
-    else if (which == "_latch_draw_path_2")
-        latch_draw_path_sample_interference_check(2);
-    else if (which == "_latch_draw_path_3")
-        latch_draw_path_sample_interference_check(3);
-    else if (which == "_latch_draw_path_4")
-        latch_draw_path_sample_interference_check(4);
+    else if (which == "_latch_closing_path_interference")
+        latch_closing_path_interference_check();
     else if (which == "leaf_spring_mount_pair") leaf_spring_mount_pair_view();
     else if (which == "left_leaf_spring_mount") left_leaf_spring_mount();
     else if (which == "right_leaf_spring_mount") right_leaf_spring_mount();

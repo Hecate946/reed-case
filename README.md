@@ -12,13 +12,14 @@ configuration file, and one source-zip script.
 - four D4x2 retention points per tray
 - replaceable **2 mm metal hinge pin** with alternating printed knuckles
 - two full-height, sharp-cornered mirrored stepped spring-support blocks
-- separate full-height moving draw latch with exterior push button, protruding
-  rounded hook, pull-down ramp, and positive locking land
-- intact outer base floor with a fitted front-wall button opening
+- separate moving latch plate with a large **48 x 6.65 mm** exterior push button
+- one closing tongue with a `---\` outward face and a flat-underside catch
+- no guide rails and no stop tabs; the inner front wall is the locked stop
+- shallow slide pan recessed into the base floor, outer bottom shell intact
 - no modeled spring; the future leaf spring remains a separate metal part
 - recessed lid latch groove with no protruding lid striker
 - continuous **2 x 175 mm silicone O-ring** prototype seal
-- shallow `HECATE946` lid engraving, controlled from `src/config.scad`
+- shallow `ASASI` mark at the lid's bottom right, controlled from `src/config.scad`
 - dark-teal shell / white-tray colors in OpenSCAD previews only
 
 The trays sit slightly toward the hinge, leaving a dedicated front service strip
@@ -36,61 +37,96 @@ case. `left_leaf_spring_mount` and `right_leaf_spring_mount` expose each module
 separately for dimension changes and standalone STL checks.
 Each piece fits within a **13.0 x 8.5 x 8.45 mm** envelope and extends from the
 base floor to the case seam. The front step depth and outer-foot width are
-separate parameters in `src/config.scad`.
+separate parameters in `src/config.scad`. The mount centers sit at **-42 and
++42 mm**, so the real leaf spring spans about 84 mm between the outer feet.
+That span is deliberate: it clears the much wider latch plate. Expect to need
+**0.5 mm or thicker** spring steel, because a thin 0.3 mm leaf over this span
+delivers well under 1 N at full travel and feels dead.
 
 ### Moving latch piece
 
-The latch is a separate component rather than part of the printable base. The
-spring-mount centers are spread to **-25 and +25 mm**, giving a 37 mm closest
-gap. The latch body's longest side is now only **24 mm**, leaving **6.5 mm** of
-space to each mount. The body sits entirely on top of the interior floor,
-extends to the case seam, and never enters or protrudes through the exterior
-bottom shell. Its
-**20.0 x 4.0 mm** integral button uses a consistent **1.65 mm rounded-corner
-radius**, passes through a matching rounded wall opening, and projects
-3.2 mm outside. Its center is derived directly from `x = 0` and
-`z = v2_base_h / 2`, so it is exactly horizontally and vertically centered on
-the bottom case. The rear rectangle ends exactly at the base seam. A centered
-**16.0 x 3.2 mm** upright tongue rises 6.4 mm above it; because its depth equals
-the rear rectangle depth, it is never thicker than the rectangle beneath it.
-The working hook is fused directly to this tongue and projects outward toward
-the lid wall.
+The latch is a separate component rather than part of the printable base. It is
+a single flat plate, **56.0 x 4.0 mm** in plan, sliding in a **1.00 mm** deep pan
+recessed into the interior base floor. The pan leaves **2.80 mm** of floor skin
+and never breaks the exterior bottom shell. The pan's side walls guide the plate
+in X; its rear wall sits 0.30 mm behind the fully pressed position and acts only
+as an overtravel backstop.
 
-The rounded hook nose is pushed inward by the descending lid wall. Once its
-matching groove reaches the hook, the spring returns the latch outward and
-inserts the hook into the groove. The hook's top rises **0.60 mm** from its root
-land to its nose; moving outward makes the fixed groove roof follow that surface
-downward, pulling the lid onto the seal. This matches the current 2 mm O-ring's
-**0.55 mm** protrusion above its groove and leaves 0.05 mm of nominal hard-stop
-overtravel. A 0.60 mm flat root land gives the latch a settled locked position
-instead of leaving it able to back-drive along the incline. Pressing the
-exterior button through its **3.20 mm** travel completely retracts the hook and
-leaves the button exactly flush with the case wall.
+There are no guide rails and no stop tabs anywhere in the design. At rest the
+leaf spring pushes the plate outward until its full-width front face lands flat
+on the inner front wall, so the locked stop is 56 mm of wall instead of two
+small tabs.
 
-The lid now owns only a **15.7 mm-wide, 1.45 mm-deep** recessed groove. Its
-profile is low at the inner locking edge and rises inside the pocket to clear
-the hook ramp and rounded nose. It leaves **1.35 mm** of solid outer wall and
-starts 0.15 mm above the O-ring gland, so the latch groove never opens into or
-interrupts the continuous seal groove. The future real leaf spring sits between
-the mount pair and rear rectangle; the spring itself remains absent from CAD.
-All functional values are grouped under `MOVING FRONT LATCH PIECE` in
-`src/config.scad`.
+Dropping the plate into the pan is what lets the button grow. The interior floor
+sits above the exterior mid-plane, so a vertically centered button on the base
+face is height-limited by the floor; the pan removes that limit. The integral
+button is now **48.0 x 6.65 mm** with a **2.60 mm** corner radius, covering about
+**13.7%** of the front face. Its center is derived from `x = 0` and
+`z = v2_base_h / 2`, so it stays exactly centered. Its **2.60 mm** travel leaves
+it exactly flush with the case wall when fully pressed.
 
-Two **2.4 mm-high** base-integrated guide rails hold the moving plate square
-through its full stroke. Mirrored stop tabs define both the spring-biased locked
-endpoint and the fully pressed endpoint with 0.05 mm nominal clearance. The
-rear stops physically prevent the button from traveling past flush. The guides
-stay low so they do not consume the upper region reserved for the future metal
-leaf spring.
+#### Closing tongue and catch
+
+One solid rises above the seam. Read its outward face top-down and it is
+literally `---\`: a flat crown, then a single straight ramp falling outward to a
+protruding catch. The descending lid wall rides that ramp and drives the whole
+latch inward; when the lid pocket lines up, the spring snaps the catch in. Every
+convex edge carries one **0.55 mm** radius and the single concave corner carries
+a **0.35 mm** fillet.
+
+The catch underside is **horizontal**. This is the important change from the old
+hook. The seal load presses straight up into a flat **1.0 mm** deep bearing land
+and cannot back-drive the latch. Previously the only thing holding the lid was a
+sloped hook top at roughly 35 degrees, which meant the O-ring's own force was
+continuously trying to eject the latch and the leaf spring was fighting the seal
+the entire time the case was closed. Nothing carries the lock now except that
+flat land.
+
+Sequence: press the lid down to the seam, the catch slips in with **0.20 mm** of
+room above and below, release, and the seal lifts the lid **0.20 mm** until the
+pocket floor lands on the land. Locked O-ring squeeze is **0.35 mm**, about
+17.5% of the 2 mm cord. Pressing the button retracts the catch **1.55 mm** past
+the wall face, with 1.05 mm of travel to spare.
+
+The tongue is set back **0.50 mm** from the plate's front face. Without that
+setback the fillet under the catch, not the flat land, would be the first thing
+the lid pocket touches, and the seat height would be wrong. `make check` catches
+that case directly.
+
+#### Lid pocket
+
+The lid owns only a plain rounded pocket, **22.6 mm** wide and **1.80 mm** deep,
+leaving **1.60 mm** of solid outer wall skin. Its floor sits **2.80 mm** above the
+seam. The previous version placed it 1.60 mm above the seam, which left only
+**0.15 mm** of lid material between the O-ring gland roof and the pocket floor.
+That web is unprintable; it is now **1.35 mm** and is asserted.
+
+The pocket roof is derived, not hand-set: it clears the point where the closing
+ramp crosses the lid wall face, plus 0.25 mm. Change the tongue height or the
+catch extension and the pocket follows.
+
+All functional values are grouped under `MOVING FRONT LATCH PIECE` and
+`CLOSING TONGUE AND CATCH` in `src/config.scad`.
+
+#### Known limitation
+
+The button opening is a straight 48 x 6.65 mm hole through the front wall into
+the sealed interior. The O-ring seals the lid seam properly and then the case
+breathes through the latch. This redesign does not fix that and it is probably
+not fixable with an external push button; it needs either a gasketed button boot
+or a latch that acts through the seam instead of through the wall. Decide that
+before treating the Boveda humidity behaviour as real.
+
+#### Views
 
 Use `bottom_case` for the installed assembly, `bottom_case_shell` for the base
 and its openings alone, `bottom_case_latch_fit` for a transparent fit view, and
 `bottom_case_latch_pressed` for maximum inward travel.
-`latch_groove_lock_detail` shows the hook seated in the groove,
-`latch_groove_closing_entry` shows the lid 0.60 mm above that position,
-`latch_button_release_detail` shows the hook fully retracted, and
-`top_lid_latch_groove` isolates the grooved center-front lid section.
-Use `latch_piece` for the standalone moving component.
+`latch_groove_lock_detail` shows the catch seated on its land at the resting lid
+height, `latch_groove_closing_entry` shows the moment of entry with the lid
+pressed to the seam, `latch_button_release_detail` shows the catch fully
+retracted, and `top_lid_latch_groove` isolates the pocketed center-front lid
+section. Use `latch_piece` for the standalone moving component.
 
 Use `bottom_case_boveda_size_60` to see one Boveda Size 60 centered in the
 empty bottom case. Its **133.35 x 88.90 mm** footprint follows Boveda's published

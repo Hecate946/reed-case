@@ -200,7 +200,7 @@ v2_hinge_pin_len = v2_hinge_usable + 2.00;
 // ---------------------------------------------------------------------------
 // Each side is one plain rectangular solid from the base floor to the case
 // seam. The left and right blocks remain separate modules for easy tweaking.
-leaf_spring_mount_centers_x = [-25.00, 25.00];
+leaf_spring_mount_centers_x = [-42.00, 42.00];
 leaf_spring_mount_width = 13.00;
 leaf_spring_mount_depth = 8.50;
 leaf_spring_mount_height = v2_base_h - v2_base_floor_t;
@@ -222,127 +222,146 @@ leaf_spring_mount_y = v2_case_d / 2 - v2_wall -
 leaf_spring_mount_inner_gap =
     leaf_spring_mount_centers_x[1] - leaf_spring_mount_centers_x[0] -
     leaf_spring_mount_width;
-latch_body_width = 24.00;
+// The base floor carries a shallow recessed slide pan under the moving latch.
+// The pan walls guide the plate in X, and dropping the plate into the pan is
+// what lets the exterior button grow tall enough to look centered on the front
+// face. There are no separate guide rails or stop tabs anywhere in the design.
+latch_floor_pocket_depth = 1.00;
+latch_floor_z = v2_base_floor_t - latch_floor_pocket_depth;
+latch_pocket_side_clearance = 0.30;
+latch_pocket_back_relief = 0.30;
+
+latch_body_width = 56.00;
 latch_mount_side_gap =
     (leaf_spring_mount_inner_gap - latch_body_width) / 2;
-latch_body_depth = 3.20;
-latch_body_bottom_z = v2_base_floor_t;
-// The rear rectangle itself fills the complete interior height and ends exactly
-// at the base seam. Only the thin closing tongue rises above the seam.
+latch_body_depth = 4.00;
+latch_body_bottom_z = latch_floor_z;
+// The plate fills the interior height and ends exactly at the base seam. Only
+// the closing tongue rises above the seam.
 latch_body_height = v2_base_h - latch_body_bottom_z;
 
-// The leaf spring biases the latch outward (+Y). A closing lid or a finger on
-// the button moves the complete latch inward (-Y) by this amount.
-latch_inward_travel = 3.20;
-latch_rest_wall_clearance = 0.55;
-latch_body_y = v2_case_d / 2 - v2_wall - latch_rest_wall_clearance -
+// The leaf spring biases the latch outward (+Y) until the plate's full-width
+// front face lands on the inner front wall: that wall is the locked stop, so no
+// stop tabs are needed. A closing lid or a finger on the button moves the
+// complete latch inward (-Y) by this amount.
+latch_inward_travel = 2.60;
+latch_rest_wall_clearance = 0.10;
+latch_wall_inner_y = v2_case_d / 2 - v2_wall;
+latch_body_y = latch_wall_inner_y - latch_rest_wall_clearance -
                latch_body_depth / 2;
 
-// Low base-integrated guides keep the latch square during its full stroke.
-// Mirrored front stop tabs define the spring-biased locked endpoint without
-// consuming the upper space reserved for the future metal leaf spring.
-latch_guide_clearance = 0.25;
-latch_guide_width = 1.80;
-latch_guide_height = 2.40;
-latch_guide_end_clearance = 0.35;
-latch_guide_depth = latch_body_depth + latch_inward_travel +
-                    2 * latch_guide_end_clearance;
-latch_guide_y = latch_body_y - latch_inward_travel / 2;
-latch_guide_centers_x = [
-    -latch_body_width / 2 - latch_guide_clearance - latch_guide_width / 2,
-     latch_body_width / 2 + latch_guide_clearance + latch_guide_width / 2
-];
-latch_stop_width = 2.80;
-latch_stop_depth = 0.40;
-latch_stop_clearance = 0.05;
-latch_stop_centers_x = [
-    -latch_body_width / 2 - latch_guide_clearance -
-        latch_guide_width + latch_stop_width / 2,
-     latch_body_width / 2 + latch_guide_clearance +
-        latch_guide_width - latch_stop_width / 2
-];
-latch_stop_y = latch_body_y + latch_body_depth / 2 +
-               latch_stop_clearance + latch_stop_depth / 2;
-latch_inward_stop_y = latch_body_y - latch_inward_travel -
-                      latch_body_depth / 2 - latch_stop_clearance -
-                      latch_stop_depth / 2;
+// Slide-pan footprint. The rear pan wall sits one small relief behind the fully
+// pressed plate, so it only ever acts as an overtravel backstop.
+latch_pocket_width = latch_body_width + 2 * latch_pocket_side_clearance;
+latch_pocket_front_y = latch_wall_inner_y;
+latch_pocket_back_y = latch_body_y - latch_body_depth / 2 -
+                      latch_inward_travel - latch_pocket_back_relief;
+latch_pocket_depth_y = latch_pocket_front_y - latch_pocket_back_y;
+latch_pocket_center_y = (latch_pocket_front_y + latch_pocket_back_y) / 2;
 
-// The front button is integral to the moving piece. It passes through the
-// front-wall opening and remains visible/protruding outside the case.
-latch_button_width = 20.00;
-latch_button_height = 4.00;
-latch_button_corner_radius = 1.65;
+// The front button is integral to the moving plate. Its bottom is flush with
+// the plate bottom in the slide pan, which is what lets a vertically centered
+// button reach this height on a base whose interior floor sits above the
+// exterior mid-plane.
+latch_button_width = 48.00;
+latch_button_corner_radius = 2.60;
 latch_button_center_x = 0;
 latch_button_center_z = v2_base_h / 2;
+latch_button_height = 2 * (latch_button_center_z - latch_floor_z);
 latch_button_bottom_z = latch_button_center_z - latch_button_height / 2;
 latch_button_bottom_offset = latch_button_bottom_z - latch_body_bottom_z;
-latch_button_exposure = 3.20;
+latch_button_exposure = latch_inward_travel;
 latch_button_pressed_exposure =
     latch_button_exposure - latch_inward_travel;
 latch_feature_overlap = 0.15;
 latch_button_depth =
     v2_case_d / 2 + latch_button_exposure -
     (latch_body_y + latch_body_depth / 2 - latch_feature_overlap);
+latch_button_face_fraction =
+    (latch_button_width * latch_button_height) /
+    (v2_case_w * v2_base_h);
 
-// Thin upright carrier. Its maximum depth exactly matches the rear rectangle;
-// the replaceable moving latch, rather than the lid, owns the working hook.
-latch_tongue_width = 16.00;
-latch_tongue_depth = latch_body_depth;
-latch_tongue_height = 6.40;
-latch_tongue_plan_corner_radius = 0.75;
-latch_tongue_cam_drop = 1.20;
-latch_tongue_cam_back_y = -0.70;
-latch_tongue_cam_steps = 8;
+// ---------------------------------------------------------------------------
+// CLOSING TONGUE AND CATCH
+// ---------------------------------------------------------------------------
+// One solid rises above the seam. Seen from the side its outward face reads as
+// ---\ : a flat crown, then a single straight ramp falling outward to a
+// protruding catch. The descending lid wall rides that ramp and drives the
+// latch inward; when the lid groove lines up, the spring snaps the catch in.
+//
+// The catch underside is horizontal, so the seal load presses straight up into
+// it and cannot back-drive the latch. Nothing else carries the lock.
+// The tongue is set back from the plate's front face so the fillet under the
+// catch stays inside the lid wall line. Without that setback the fillet, not
+// the flat land, would be the first thing the lid groove touches.
+latch_tongue_front_setback = 0.50;
+latch_tongue_depth = latch_body_depth - latch_tongue_front_setback;
+latch_catch_width = 22.00;
+latch_catch_height = 6.60;
+latch_catch_extension = 2.15;
+latch_catch_underside_above_seam = 3.00;
+latch_catch_crest_top_above_seam = 5.20;
+latch_catch_ramp_start_inset = 0.60;
+latch_catch_edge_round = 0.55;
+latch_catch_notch_round = 0.35;
+latch_catch_plan_corner_radius = 1.20;
+// The profile continues this far below the seam so the rounded bottom corners
+// are buried inside the plate instead of showing as a notch at the joint.
+latch_catch_root_sink = 1.60;
 
-// Outward-protruding draw hook. Its top rises toward the rounded leading edge;
-// as the leaf spring pushes it into the lid groove, the groove roof follows the
-// ramp down by latch_draw_down and settles on the flat root land.
-latch_hook_width = 15.20;
-latch_hook_extension = 1.80;
-latch_hook_land_depth = 0.60;
-latch_hook_bottom_above_seam = 2.30;
-latch_hook_locked_top_above_seam = 4.00;
-latch_hook_entry_top_above_seam = 4.60;
-latch_hook_plan_corner_radius = 0.40;
-latch_hook_nose_radius = 0.35;
-latch_draw_down = 0.60;
+latch_catch_front_y = latch_body_y + latch_body_depth / 2 -
+                      latch_tongue_front_setback;
+latch_catch_back_y = latch_body_y - latch_body_depth / 2;
+latch_catch_fillet_outer_y = latch_catch_front_y +
+                             latch_catch_notch_round;
+latch_catch_crest_y = latch_catch_front_y + latch_catch_extension;
+latch_catch_ramp_start_y = latch_catch_front_y -
+                           latch_catch_ramp_start_inset;
+latch_catch_crest_height =
+    latch_catch_crest_top_above_seam - latch_catch_underside_above_seam;
+// How far the button must move before the catch clears the lid wall.
+latch_release_retraction = latch_catch_crest_y - latch_wall_inner_y;
+// Height at which the closing ramp crosses the lid wall face. Everything the
+// tongue occupies outboard of that wall lies below this line, so the lid groove
+// roof only has to clear this one number.
+latch_catch_ramp_wall_cross_z =
+    latch_catch_crest_top_above_seam +
+    (latch_catch_crest_y - latch_wall_inner_y) /
+    (latch_catch_crest_y - latch_catch_ramp_start_y) *
+    (latch_catch_height - latch_catch_crest_top_above_seam);
 
-// FDM running clearance around the removable body and the front button stem.
+// FDM running clearance around the removable plate and the button stem.
 latch_fit_clearance = 0.25;
+// Used only by the CLI clearance checks: the locked catch underside and the
+// groove floor are meant to touch, so collision sampling backs off this far.
+latch_seat_check_relief = 0.02;
 
-// The lid owns only a recessed rounded groove—no striker projects from it.
-// The groove stays above the O-ring gland and leaves a solid outer wall skin.
-v2_lid_latch_groove_width = latch_hook_width + 0.50;
-v2_lid_latch_groove_depth = 1.45;
-v2_lid_latch_groove_bottom_above_seam = 1.60;
-v2_lid_latch_groove_inner_roof_above_seam =
-    latch_hook_locked_top_above_seam + 0.05;
-v2_lid_latch_groove_outer_roof_above_seam =
-    latch_hook_entry_top_above_seam + 0.05;
-v2_lid_latch_groove_max_height =
-    v2_lid_latch_groove_outer_roof_above_seam -
-    v2_lid_latch_groove_bottom_above_seam;
-v2_lid_latch_groove_corner_radius = 0.35;
-v2_lid_latch_groove_inner_y = v2_case_d / 2 - v2_wall;
+// The lid owns only a plain rounded pocket--no striker projects from it. Press
+// the lid to the seam and the catch slips in with latch_lid_rest_lift of room
+// top and bottom; release it and the seal lifts the lid by exactly that amount
+// until the pocket floor lands on the flat catch underside.
+v2_lid_latch_groove_width = latch_catch_width + 0.60;
+v2_lid_latch_groove_depth = 1.80;
+v2_lid_latch_groove_floor_above_seam = 2.80;
+v2_lid_latch_groove_roof_above_seam =
+    latch_catch_ramp_wall_cross_z + 0.25;
+v2_lid_latch_groove_height =
+    v2_lid_latch_groove_roof_above_seam -
+    v2_lid_latch_groove_floor_above_seam;
+v2_lid_latch_groove_corner_radius = 0.60;
+v2_lid_latch_groove_inner_y = latch_wall_inner_y;
 v2_lid_latch_groove_outer_y =
     v2_lid_latch_groove_inner_y + v2_lid_latch_groove_depth;
-v2_lid_latch_groove_ramp_start_y =
-    latch_body_y + latch_tongue_depth / 2 + latch_hook_land_depth;
-v2_lid_latch_groove_ramp_end_y =
-    latch_body_y + latch_tongue_depth / 2 + latch_hook_extension -
-    latch_hook_nose_radius;
 v2_lid_latch_groove_outer_skin =
     v2_wall - v2_lid_latch_groove_depth;
-latch_hook_contact_travel =
-    // The rounded nose first retracts the latch while the lid is still high.
-    // Active pull-down begins only when the straight hook ramp reaches the
-    // groove edge, so exclude the nose radius from the draw-path travel.
-    latch_body_y + latch_tongue_depth / 2 + latch_hook_extension -
-    latch_hook_nose_radius -
-    v2_lid_latch_groove_inner_y;
-latch_hook_land_travel =
-    latch_body_y + latch_tongue_depth / 2 + latch_hook_land_depth -
-    v2_lid_latch_groove_inner_y;
+
+// Locked-state results.
+latch_lid_rest_lift = latch_catch_underside_above_seam -
+                      v2_lid_latch_groove_floor_above_seam;
+latch_crest_roof_clearance =
+    v2_lid_latch_groove_roof_above_seam -
+    latch_catch_crest_top_above_seam;
+latch_lid_engagement = latch_catch_crest_y - latch_wall_inner_y;
 
 // 2 mm silicone O-ring prototype seal. A 175 mm ID ring follows this path at
 // about 1-3% stretch. Groove width intentionally leaves more gland volume than
@@ -365,12 +384,23 @@ v2_gasket_path_len =
 v2_gasket_free_center_len = PI * (v2_gasket_id + v2_gasket_d);
 v2_gasket_stretch = v2_gasket_path_len / v2_gasket_free_center_len - 1;
 
-// Lid engraving. Keep this shallow for a cheap FDM appearance prototype.
+// Lid mark. Keep this shallow for a cheap FDM appearance prototype. It is
+// placed by its bottom-right corner as seen looking down at the closed case
+// with the button facing you.
 v2_engraving_enable = true;
-v2_brand_text = "HECATE946";
-v2_brand_size = 9.0;
-v2_brand_depth = 0.35;
+v2_brand_text = "ASASI";
+v2_brand_size = 7.00;
+v2_brand_depth = 0.40;
 v2_brand_font = "Liberation Sans:style=Bold";
+v2_brand_margin_x = 15.00;
+v2_brand_margin_y = 11.00;
+
+// Latch results that depend on the seal dimensions above.
+latch_gasket_squeeze = (v2_gasket_d - v2_gasket_groove_d) -
+                       latch_lid_rest_lift;
+// Lid material left between the seal gland and the latch pocket floor.
+latch_groove_seal_web = v2_lid_latch_groove_floor_above_seam -
+                        v2_gasket_groove_d;
 
 // Preview-only exploded/open spacing.
 exploded_gap = 18;
@@ -445,19 +475,32 @@ assert(leaf_spring_mount_y - leaf_spring_mount_depth / 2 >=
 assert(latch_body_width > 0 &&
        latch_body_width < leaf_spring_mount_inner_gap,
        "Latch body must fit between the spring mounts");
-assert(latch_body_bottom_z >= v2_base_floor_t,
-       "Latch body must stay above the exterior base-bottom shell");
-assert(abs(latch_body_bottom_z + latch_body_height - v2_base_h) < 0.01,
-       "Rear latch rectangle should end at the base-case seam");
 assert(latch_mount_side_gap >= 5.00,
        "Latch needs generous space from both spring mounts");
+assert(latch_floor_pocket_depth > 0 &&
+       v2_base_floor_t - latch_floor_pocket_depth >= 1.00,
+       "Latch slide pan leaves less than 1 mm of base-floor skin");
+assert(latch_pocket_back_y >
+       v2_tray_y + v2_tray_recess_d / 2 + 1.00,
+       "Latch slide pan collides with the tray wells");
+assert(latch_pocket_width / 2 <
+       leaf_spring_mount_centers_x[1] - leaf_spring_mount_width / 2,
+       "Latch slide pan undercuts the spring-support blocks");
+assert(abs(latch_body_bottom_z + latch_body_height - v2_base_h) < 0.01,
+       "Latch plate should end at the base-case seam");
+assert(latch_rest_wall_clearance >= 0 &&
+       latch_rest_wall_clearance < 0.30,
+       "Locked latch must rest against the inner front wall");
 assert(latch_button_width < latch_body_width,
        "Exterior latch button must be narrower than its body");
 assert(latch_button_corner_radius > 0 &&
-       2 * latch_button_corner_radius < latch_button_height,
+       2 * latch_button_corner_radius < latch_button_height &&
+       2 * latch_button_corner_radius < latch_button_width,
        "Button corner radius must fit inside the button face");
-assert(latch_button_bottom_z >= v2_base_floor_t + 0.25,
-       "Exterior button opening is too close to the base-floor junction");
+assert(latch_button_bottom_z >= latch_floor_z - 0.01,
+       "Exterior button must not drop below the latch slide pan");
+assert(latch_button_bottom_z - latch_fit_clearance > 1.50,
+       "Button opening leaves too little material under the front wall");
 assert(latch_button_bottom_z + latch_button_height < v2_base_h - 0.50,
        "Exterior button opening is too close to the case seam");
 assert(abs(latch_button_pressed_exposure) < 0.01,
@@ -465,60 +508,56 @@ assert(abs(latch_button_pressed_exposure) < 0.01,
 assert(abs(latch_button_center_x) < 0.01 &&
        abs(latch_button_center_z - v2_base_h / 2) < 0.01,
        "Latch button must be horizontally and vertically centered");
-assert(latch_inward_travel > latch_hook_extension + 0.50,
-       "Button travel must fully retract the hook from the lid groove");
-assert(latch_guide_clearance >= latch_fit_clearance,
-       "Latch guides need at least the configured running clearance");
-assert(latch_guide_y + latch_guide_depth / 2 <=
-       v2_case_d / 2 - v2_wall + 0.01,
-       "Latch guides must stay inside the base wall");
-assert(latch_stop_y + latch_stop_depth / 2 <=
-       v2_case_d / 2 - v2_wall,
-       "Latch outward stops must stay inside the base wall");
-assert(latch_inward_stop_y - latch_stop_depth / 2 >=
-       v2_tray_y + v2_tray_recess_d / 2 + 1.00,
-       "Latch inward stops need clearance from the tray wells");
-assert(latch_tongue_width > 0 &&
-       latch_tongue_width < latch_body_width,
-       "Closing tongue width must fit on the rear latch rectangle");
-assert(abs(latch_tongue_depth - latch_body_depth) < 0.01,
-       "Upright tongue must not be thicker than the rear rectangle");
-assert(latch_tongue_plan_corner_radius > 0 &&
-       2 * latch_tongue_plan_corner_radius < latch_tongue_depth,
-       "Tongue plan radius must fit inside its thickness");
-assert(latch_tongue_cam_back_y > -latch_tongue_depth / 2 &&
-       latch_tongue_cam_back_y < latch_tongue_depth / 2,
-       "Tongue cam must begin inside the tongue depth");
-assert(latch_tongue_cam_drop > 0 &&
-       latch_tongue_cam_drop < latch_tongue_height,
-       "Rounded closing cam needs a valid vertical drop");
-assert(latch_hook_width > 0 && latch_hook_width <= latch_tongue_width,
-       "Draw hook width must fit on the upright tongue");
-assert(latch_hook_extension > latch_hook_land_depth &&
-       latch_hook_land_depth > 0,
-       "Draw hook needs both a ramp and positive flat land");
-assert(latch_hook_bottom_above_seam > v2_gasket_groove_d &&
-       latch_hook_entry_top_above_seam < latch_tongue_height - 0.50,
-       "Draw hook must clear the seal and retain a strong upper root");
-assert(abs(latch_hook_entry_top_above_seam -
-           latch_hook_locked_top_above_seam - latch_draw_down) < 0.01,
-       "Hook ramp height must equal the configured lid draw-down");
-assert(latch_draw_down >= v2_gasket_d - v2_gasket_groove_d &&
-       latch_draw_down <= v2_gasket_d - v2_gasket_groove_d + 0.15,
-       "Latch draw-down must match the gasket protrusion without overtravel");
-assert(v2_lid_latch_groove_width > latch_hook_width &&
-       v2_lid_latch_groove_max_height > 0,
-       "Lid groove needs positive clearance around the draw hook");
-assert(v2_lid_latch_groove_bottom_above_seam > v2_gasket_groove_d,
-       "Lid latch groove must stay separate from the O-ring groove");
-assert(v2_lid_latch_groove_ramp_start_y >=
-           v2_lid_latch_groove_inner_y &&
-       v2_lid_latch_groove_ramp_end_y <
-           v2_lid_latch_groove_outer_y,
-       "Profiled lid groove ramp must remain inside the wall pocket");
-assert(latch_hook_contact_travel > latch_hook_land_travel &&
-       latch_hook_contact_travel < latch_inward_travel &&
-       latch_hook_land_travel >= 0,
-       "Hook contact and locking travel must fit inside the button stroke");
+assert(latch_button_face_fraction >= 0.10,
+       "Exterior button should cover at least 10% of the front face");
+assert(latch_catch_width > 0 &&
+       latch_catch_width < latch_body_width,
+       "Closing tongue width must fit on the latch plate");
+assert(latch_catch_extension > latch_rest_wall_clearance &&
+       latch_release_retraction > 0,
+       "Catch must actually reach past the lid wall face");
+assert(latch_inward_travel > latch_release_retraction + 0.50,
+       "Button travel must fully retract the catch from the lid groove");
+assert(latch_catch_crest_height >= 1.80,
+       "Catch crest is too shallow to hold the lid reliably");
+assert(latch_catch_crest_top_above_seam < latch_catch_height &&
+       latch_catch_underside_above_seam > v2_gasket_groove_d,
+       "Catch must clear the seal gland and sit below the tongue crown");
+assert(latch_catch_height < v2_lid_h - v2_lid_roof_t - 1.00,
+       "Closing tongue is too tall for the lid interior");
+assert(latch_catch_ramp_start_inset > 0 &&
+       latch_catch_ramp_start_inset < latch_tongue_depth / 2,
+       "Ramp must start inside the tongue front face");
+assert(latch_catch_edge_round > 0 &&
+       2 * latch_catch_edge_round < latch_catch_crest_height,
+       "Catch edge rounding must fit on the crest face");
+assert(latch_catch_plan_corner_radius > 0 &&
+       2 * latch_catch_plan_corner_radius < latch_catch_width,
+       "Tongue plan radius must fit inside its width");
+assert(latch_tongue_front_setback > 0 &&
+       latch_tongue_front_setback < latch_body_depth / 2,
+       "Tongue setback must fit inside the latch plate");
+assert(latch_catch_fillet_outer_y <= latch_wall_inner_y - 0.15,
+       "Fillet under the catch must stay inside the lid wall line");
+assert(latch_catch_root_sink > 0 &&
+       latch_catch_root_sink > latch_catch_edge_round,
+       "Tongue profile must sink far enough into the plate");
+assert(v2_lid_latch_groove_width > latch_catch_width &&
+       v2_lid_latch_groove_depth > latch_lid_engagement,
+       "Lid groove needs positive clearance around the catch");
+assert(latch_lid_rest_lift > 0.10 && latch_lid_rest_lift < 0.35,
+       str("Lid rest lift is ", latch_lid_rest_lift,
+           " mm and should stay between 0.10 and 0.35 mm"));
+assert(latch_crest_roof_clearance > 0,
+       "Lid groove roof must clear the closing ramp at the wall face");
+assert(latch_gasket_squeeze >= 0.25 && latch_gasket_squeeze <= 0.45,
+       str("Locked O-ring squeeze is ", latch_gasket_squeeze,
+           " mm and should stay between 0.25 and 0.45 mm"));
+assert(latch_groove_seal_web >= 1.00,
+       str("Only ", latch_groove_seal_web,
+           " mm of lid material separates the seal gland from the latch pocket"));
 assert(v2_lid_latch_groove_outer_skin >= 1.20,
        "Lid latch groove must leave a robust outer wall skin");
+assert(v2_lid_latch_groove_roof_above_seam <
+       v2_lid_h - v2_lid_roof_t - 1.50,
+       "Lid latch groove leaves too little wall above it");

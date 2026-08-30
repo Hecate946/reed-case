@@ -17,7 +17,7 @@ check: ## Compile the main views and printable parts without making STLs
 		$(OPENSCAD) -o "$(CURDIR)/$(BUILD)/check/$$p.csg" \
 			-D 'mesh_profile="$(PROFILE)"' -D "part=\"$$p\"" $(SOURCE) >/dev/null || exit $$?; \
 	done
-	@for p in _latch_fit_interference _latch_pressed_base_interference _latch_complete_lid_locked_interference _latch_complete_lid_entry_interference _latch_complete_lid_released_interference _latch_draw_path_interference _latch_groove_pressed_engagement; do \
+	@for p in _latch_fit_interference _latch_pressed_base_interference _latch_complete_lid_locked_interference _latch_complete_lid_entry_interference _latch_complete_lid_released_interference _latch_closing_path_interference _latch_groove_pressed_engagement; do \
 		out="$(CURDIR)/$(BUILD)/check/$$p.stl"; \
 		log="$(CURDIR)/$(BUILD)/check/$$p.log"; \
 		rm -f -- "$$out"; \

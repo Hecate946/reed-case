@@ -107,14 +107,21 @@ module v2_gasket_groove_cut() {
 }
 
 module v2_lid_engraving_cut() {
+    // Anchored to the corner that reads as bottom-right when you look down at
+    // the closed case with the button facing you. The lid is mirrored in Z on
+    // assembly, so the mark is laid out rotated here and comes out upright and
+    // correctly handed on the finished exterior.
     if (v2_engraving_enable)
-        translate([0, 0, -epsilon])
-            linear_extrude(height = v2_brand_depth + epsilon)
-                text(v2_brand_text,
-                     size = v2_brand_size,
-                     font = v2_brand_font,
-                     halign = "center",
-                     valign = "center");
+        translate([-(v2_case_w / 2 - v2_brand_margin_x),
+                     v2_case_d / 2 - v2_brand_margin_y,
+                    -epsilon])
+            rotate([0, 0, 180])
+                linear_extrude(height = v2_brand_depth + epsilon)
+                    text(v2_brand_text,
+                         size = v2_brand_size,
+                         font = v2_brand_font,
+                         halign = "right",
+                         valign = "baseline");
 }
 
 module case_base_body() {
@@ -138,7 +145,6 @@ module case_base() {
     union() {
         case_base_body();
         installed_leaf_spring_mounts();
-        installed_latch_guides();
     }
 }
 
