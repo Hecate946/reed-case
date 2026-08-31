@@ -1,11 +1,10 @@
 /*
-  Dual side-latch spring supports and metal cover.
+  Compact centered front-latch spring supports and metal cover.
 
-  Each side latch uses the same pair of compact supports. The supports are
-  fused into the printed base, provide pilot holes for two M2 cover screws,
-  and clamp the ends of a thin bowed 301 full-hard stainless spring strip.
-  A separate 0.030 in / 0.76 mm stainless cover plate hides the complete
-  spring cavity from the user while leaving the moving latch free behind it.
+  One pair of supports is fused into the front interior wall. They provide
+  pilot holes for two M2 cover screws and clamp the bowed 301 full-hard
+  stainless spring strip. A 0.030 in / 0.76 mm stainless cover hides the
+  mechanism from the user while the moving button remains seamless outside.
 */
 
 include <../lib/geometry.scad>
@@ -39,16 +38,13 @@ module local_leaf_spring_mount_pair() {
 }
 
 module side_latch_local_transform(side = 1) {
-    assert(side == -1 || side == 1);
-    translate([0, side_latch_center_y, 0])
-        rotate([0, 0, side > 0 ? -90 : 90])
-            children();
+    // Compatibility alias from the earlier dual-side architecture. The front
+    // mechanism already uses the latch's native +Y-outward coordinate system.
+    children();
 }
 
 module installed_leaf_spring_mounts() {
-    for (side = [-1, 1])
-        side_latch_local_transform(side)
-            local_leaf_spring_mount_pair();
+    local_leaf_spring_mount_pair();
 }
 
 module side_latch_cover_plate_2d() {
@@ -71,17 +67,19 @@ module side_latch_cover_plate() {
     linear_extrude(height = side_latch_cover_t)
         side_latch_cover_plate_2d();
 }
+module front_latch_cover_plate() { side_latch_cover_plate(); }
 
 module installed_side_latch_cover(side = 1) {
-    // Cover is vertical in the assembled case, just inboard of the spring.
-    side_latch_local_transform(side)
-        translate([0,
-                   side_latch_cover_center_y,
-                   side_latch_cover_bottom_z + side_latch_cover_h/2])
-            rotate([90, 0, 0])
-                linear_extrude(height = side_latch_cover_t, center = true)
-                    side_latch_cover_plate_2d();
+    // Compatibility name: there is now one centered front cover.
+    translate([0,
+               side_latch_cover_center_y,
+               side_latch_cover_bottom_z + side_latch_cover_h/2])
+        rotate([90, 0, 0])
+            linear_extrude(height = side_latch_cover_t, center = true)
+                side_latch_cover_plate_2d();
 }
+
+module installed_front_latch_cover() { installed_side_latch_cover(); }
 
 
 module side_leaf_spring_strip_2d() {
@@ -99,6 +97,7 @@ module side_leaf_spring_strip() {
     linear_extrude(height = side_leaf_spring_t)
         side_leaf_spring_strip_2d();
 }
+module front_leaf_spring_strip() { side_leaf_spring_strip(); }
 
 module local_leaf_spring_preview() {
     // A preview-only shallow bow between the two cover screws. The real part
@@ -130,12 +129,13 @@ module local_leaf_spring_preview() {
 }
 
 module installed_leaf_spring_previews() {
-    for (side = [-1, 1])
-        side_latch_local_transform(side)
-            local_leaf_spring_preview();
+    local_leaf_spring_preview();
 }
 
 module installed_side_latch_covers() {
-    for (side = [-1, 1])
-        installed_side_latch_cover(side);
+    installed_front_latch_cover();
+}
+
+module installed_front_latch_hardware_cover() {
+    installed_front_latch_cover();
 }

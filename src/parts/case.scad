@@ -161,14 +161,16 @@ module case_base() {
 }
 
 module case_lid() {
-    difference() {
-        union() {
-            v2_case_cup(v2_lid_h, v2_lid_roof_t);
-            v2_lid_hinge();
+    union() {
+        difference() {
+            union() {
+                v2_case_cup(v2_lid_h, v2_lid_roof_t);
+                v2_lid_hinge();
+            }
+            v2_gasket_groove_cut();
+            v2_lid_engraving_cut();
         }
-        v2_gasket_groove_cut();
-        lid_latch_groove_cut();
-        v2_lid_engraving_cut();
+        lid_descending_striker();
     }
 }
 

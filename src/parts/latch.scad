@@ -1,11 +1,9 @@
 /*
-  Dual moving side latches.
+  Compact centered front latch.
 
-  This deliberately preserves the exact front-latch kinematics: a flat plate
-  slides inward, a leaf spring biases it outward against the case wall, the
-  same ramped tongue cams inward as the lid closes, and the same flat catch
-  underside locks into a plain groove. The geometry is only narrowed and the
-  complete mechanism is rotated onto the left and right side walls.
+  The kinematics are unchanged from the previous mechanism: a flat plate slides
+  inward, a leaf spring biases it outward, the rounded ramp cams inward during
+  closing, and the flat catch underside locks into a plain recessed lid groove.
 */
 
 module latch_body() {
@@ -69,7 +67,10 @@ module latch_catch_profile_2d() {
 }
 
 module latch_closing_tongue() {
-    seam_z = latch_body_height;
+    // Option 3: keep the exact same hook profile, but move it downward into
+    // the front service strip so it no longer rises into the reed-removal
+    // path. The lid now carries the matching descending striker.
+    seam_z = latch_hook_base_z - latch_body_bottom_z;
     front_y = latch_body_depth / 2 - latch_tongue_front_setback;
     back_y = -latch_body_depth / 2;
     crest_y = front_y + latch_catch_extension;
@@ -117,13 +118,12 @@ module local_installed_latch_piece(inward_travel = 0) {
 }
 
 module installed_side_latch_piece(side = 1, inward_travel = 0) {
-    side_latch_local_transform(side)
-        local_installed_latch_piece(inward_travel);
+    // Compatibility alias from the earlier dual-side revision.
+    local_installed_latch_piece(inward_travel);
 }
 
 module installed_latch_piece(inward_travel = 0) {
-    for (side = [-1, 1])
-        installed_side_latch_piece(side, inward_travel);
+    local_installed_latch_piece(inward_travel);
 }
 
 module local_latch_slide_pan_cut() {
@@ -137,9 +137,9 @@ module local_latch_slide_pan_cut() {
               latch_floor_pocket_depth + epsilon]);
 }
 
-module local_lid_latch_groove_volume(extra_depth = 0) {
-    // Defined in lid print orientation. This is a subtraction/debug volume,
-    // never a protruding physical part of the lid.
+module raw_lid_latch_groove_volume(extra_depth = 0) {
+    // Defined in lid print orientation. This volume will be subtracted from
+    // the descending striker rather than from the lid wall itself.
     inner_y = v2_lid_latch_groove_inner_y;
     outer_y = v2_lid_latch_groove_outer_y + extra_depth;
     r = v2_lid_latch_groove_corner_radius;
@@ -154,11 +154,9 @@ module local_lid_latch_groove_volume(extra_depth = 0) {
     ])
         linear_extrude(height = v2_lid_latch_groove_width)
             union() {
-                // Rounded pocket body.
                 offset(r = r) offset(r = -r)
                     polygon([[inner_y, z_lo], [outer_y, z_lo],
                              [outer_y, z_hi], [inner_y, z_hi]]);
-                // Square, full-height mouth at the wall face.
                 polygon([[inner_y - r - epsilon, z_lo],
                          [inner_y + r,           z_lo],
                          [inner_y + r,           z_hi],
@@ -166,14 +164,63 @@ module local_lid_latch_groove_volume(extra_depth = 0) {
             }
 }
 
+module local_lid_latch_groove_volume(extra_depth = 0) {
+    // Shift the receiving groove upward in lid-print space. After assembly,
+    // that places it downward below the seam so it can meet the lowered hook.
+    translate([0, 0, latch_striker_drop])
+        raw_lid_latch_groove_volume(extra_depth);
+}
+
 module lid_latch_groove_volume(extra_depth = 0) {
-    for (side = [-1, 1])
-        side_latch_local_transform(side)
-            local_lid_latch_groove_volume(extra_depth);
+    local_lid_latch_groove_volume(extra_depth);
+}
+
+module lid_striker_body() {
+    translate([0,
+               v2_lid_striker_center_y,
+               v2_lid_h - v2_lid_striker_embed])
+        rounded_prism([v2_lid_striker_width,
+                       v2_lid_striker_depth,
+                       v2_lid_striker_total_h],
+                      v2_lid_striker_corner_r);
+}
+
+module lid_descending_striker() {
+    difference() {
+        lid_striker_body();
+        lid_latch_groove_volume();
+    }
 }
 
 module lid_latch_groove_cut() {
-    lid_latch_groove_volume();
+    // No longer cut directly into the lid wall; retained as a compatibility
+    // no-op so old view/export code keeps compiling.
+}
+
+
+module local_latch_runner_core() {
+    union() {
+        latch_body();
+        latch_closing_tongue();
+    }
+}
+
+module local_latch_hook_clearance_cut() {
+    // Running cavity for the lowered hook and the part of the sliding plate
+    // that carries it. Slightly overcut the envelope so the clearance check
+    // stays empty after CGAL triangulation.
+    hull() {
+        translate([0, latch_body_y, latch_body_bottom_z])
+            local_latch_runner_core();
+        translate([0, latch_body_y - latch_inward_travel, latch_body_bottom_z])
+            local_latch_runner_core();
+    }
+    translate([0,
+               latch_wall_inner_y + 1.10,
+               latch_hook_base_z + (latch_catch_height - latch_catch_root_sink) / 2])
+        cube([latch_catch_width + 1.20,
+              3.20,
+              latch_catch_height + latch_catch_root_sink + 1.00], center = true);
 }
 
 module local_latch_button_wall_opening() {
@@ -188,11 +235,9 @@ module local_latch_button_wall_opening() {
 }
 
 module latch_case_fit_openings() {
-    // Each side gets the same wall opening and recessed slide pan as the old
-    // front latch, rotated as a complete unit. Neither cut breaks the bottom.
-    for (side = [-1, 1])
-        side_latch_local_transform(side) {
-            local_latch_button_wall_opening();
-            local_latch_slide_pan_cut();
-        }
+    // One centered front-wall opening, recessed slide pan, and an internal
+    // clearance cavity for the lowered hook.
+    local_latch_button_wall_opening();
+    local_latch_slide_pan_cut();
+    local_latch_hook_clearance_cut();
 }

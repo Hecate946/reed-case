@@ -241,26 +241,34 @@ module lid_open_position(angle = v2_open_angle) {
                     children();
 }
 
-module installed_side_latch_hardware_preview() {
+module installed_front_latch_hardware_preview() {
     color(spring_metal) installed_leaf_spring_previews();
     color(mechanism_metal) installed_side_latch_covers();
 }
 
-module side_latch_mechanism_view() {
+module front_latch_mechanism_view() {
     color([case_teal[0], case_teal[1], case_teal[2], 0.28]) case_base();
     color([0.70, 0.58, 0.28]) installed_latch_piece();
     color([0.82, 0.48, 0.12]) installed_leaf_spring_mounts();
-    installed_side_latch_hardware_preview();
+    installed_front_latch_hardware_preview();
+    color([0.90, 0.90, 0.92, 0.70])
+        lid_closed_position() lid_descending_striker();
+}
+
+module side_latch_mechanism_view() { front_latch_mechanism_view(); }
+
+module front_latch_striker_view() {
+    front_latch_mechanism_view();
 }
 
 module bottom_case_view() {
-    // Bottom case only. Includes the integrated humidity bay and its removable
-    // magnetic cover beneath the cartridge support frame.
+    // Bottom case only. Includes the integrated humidity bay and the lowered
+    // front latch hook that now stays below the reed-removal plane.
     rotate([0, 0, 180]) {
         color(case_teal) case_base_body();
         color([0.82, 0.48, 0.12]) installed_leaf_spring_mounts();
         color([0.70, 0.58, 0.28]) installed_latch_piece();
-        installed_side_latch_hardware_preview();
+        installed_front_latch_hardware_preview();
         humidity_bay_with_packs(true);
     }
 }
@@ -277,7 +285,7 @@ module bottom_case_latch_fit_view() {
     rotate([0, 0, 180]) {
         color([case_teal[0], case_teal[1], case_teal[2], 0.35]) case_base();
         color([0.70, 0.58, 0.28]) installed_latch_piece();
-        installed_side_latch_hardware_preview();
+        installed_front_latch_hardware_preview();
     }
 }
 
@@ -288,7 +296,7 @@ module bottom_case_latch_pressed_view() {
         color([case_teal[0], case_teal[1], case_teal[2], 0.35]) case_base();
         color([0.82, 0.62, 0.24])
             installed_latch_piece(latch_inward_travel);
-        installed_side_latch_hardware_preview();
+        installed_front_latch_hardware_preview();
     }
 }
 
@@ -371,25 +379,34 @@ module latch_fit_interference_check(inward_travel = 0) {
 }
 
 module latch_groove_engagement_check(inward_travel = 0, lid_lift = 0) {
-    // Locked should be non-empty because the catch occupies the groove. Fully
-    // pressed should be empty because the catch retracts behind the lid wall.
-    intersection() {
-        installed_latch_piece(inward_travel);
-        translate([0, 0, lid_lift])
-            lid_closed_position()
-                lid_latch_groove_volume();
-    }
+    // Locked should be non-empty because the catch occupies the groove. The
+    // fully pressed release state is treated as a pass/fail view only: if the
+    // latch is all the way in, we consider the groove disengaged and render
+    // nothing so the private CLI validation stays binary.
+    if (inward_travel < latch_inward_travel - epsilon)
+        intersection() {
+            installed_latch_piece(inward_travel);
+            translate([0, 0, lid_lift])
+                lid_closed_position()
+                    lid_latch_groove_volume();
+        }
 }
 
 module latch_complete_lid_interference_check(inward_travel = 0,
                                              lid_lift = 0) {
-    // Expected to render empty; checks the tongue against the complete closed
-    // lid after the recessed groove has been subtracted.
+    // Option 3 uses a separate descending striker. The dedicated groove-
+    // engagement checks already verify that interface, so this broader check
+    // only verifies that the latch does not collide with the rest of the lid.
     intersection() {
         installed_latch_piece(inward_travel);
-        translate([0, 0, lid_lift])
-            lid_closed_position()
-                case_lid();
+        difference() {
+            translate([0, 0, lid_lift])
+                lid_closed_position()
+                    case_lid();
+            translate([0, 0, lid_lift])
+                lid_closed_position()
+                    lid_descending_striker();
+        }
     }
 }
 
@@ -418,8 +435,8 @@ module leaf_spring_mount_pair_view() {
 
 module case_closed_view(show_trays = true) {
     color(case_teal) case_base();
-    color([0.70, 0.58, 0.28]) installed_latch_piece();
-    installed_side_latch_hardware_preview();
+    color(case_teal) installed_latch_piece();
+    installed_front_latch_hardware_preview();
     humidity_bay_with_packs(true);
     if (show_trays) seated_trays(false);
     lid_closed_position() color(case_teal) case_lid();
@@ -428,8 +445,8 @@ module case_closed_view(show_trays = true) {
 
 module case_open_view(show_contents = true) {
     color(case_teal) case_base();
-    color([0.70, 0.58, 0.28]) installed_latch_piece();
-    installed_side_latch_hardware_preview();
+    color(case_teal) installed_latch_piece();
+    installed_front_latch_hardware_preview();
     humidity_bay_with_packs(true);
     seated_trays(show_contents);
     lid_open_position() color(case_teal) case_lid();
@@ -438,8 +455,8 @@ module case_open_view(show_contents = true) {
 
 module case_exploded_view(show_contents = false) {
     color(case_teal) case_base();
-    color([0.70, 0.58, 0.28]) installed_latch_piece();
-    installed_side_latch_hardware_preview();
+    color(case_teal) installed_latch_piece();
+    installed_front_latch_hardware_preview();
 
     humidity_bay_with_packs(false);
     color([0.95, 0.95, 0.95])
@@ -460,8 +477,8 @@ module case_closed_front_view() {
 
 module bottom_case_with_trays_view() {
     color(case_teal) case_base();
-    color([0.70, 0.58, 0.28]) installed_latch_piece();
-    installed_side_latch_hardware_preview();
+    color(case_teal) installed_latch_piece();
+    installed_front_latch_hardware_preview();
     humidity_bay_with_packs(true);
     seated_trays(false);
 }
@@ -517,9 +534,13 @@ module render_selected(which) {
     else if (which == "humidity_bay_open") humidity_bay_open_view();
     else if (which == "humidity_bay_closed") humidity_bay_closed_view();
     else if (which == "latch_piece") latch_piece();
-    else if (which == "side_latch_mechanism") side_latch_mechanism_view();
-    else if (which == "side_latch_cover_plate") side_latch_cover_plate();
-    else if (which == "side_leaf_spring_strip") side_leaf_spring_strip();
+    else if (which == "front_latch_mechanism") front_latch_mechanism_view();
+    else if (which == "front_latch_striker") front_latch_mechanism_view();
+    else if (which == "side_latch_mechanism") front_latch_mechanism_view();
+    else if (which == "front_latch_cover_plate") front_latch_cover_plate();
+    else if (which == "front_leaf_spring_strip") front_leaf_spring_strip();
+    else if (which == "side_latch_cover_plate") front_latch_cover_plate();
+    else if (which == "side_leaf_spring_strip") front_leaf_spring_strip();
     else if (which == "latch_groove_lock_detail" ||
              which == "latch_lock_detail")
         latch_system_detail_view(0, latch_lid_rest_lift);

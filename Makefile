@@ -4,7 +4,7 @@ BUILD := build
 PROFILE ?= prototype
 OUT := $(BUILD)/reed-case-prototype
 
-.PHONY: help check preview render export export-case export-latch export-mounts export-side-latch-hardware export-side-latch-cover-dxf export-side-spring-template-dxf export-humidity-cassette export-humidity-cover export-tray export-tray-full export-tray-face-a export-tray-face-b export-tray-parts export-fit zip clean
+.PHONY: help check preview render export export-case export-latch export-mounts export-front-latch-hardware export-front-latch-cover-dxf export-front-spring-template-dxf export-humidity-cassette export-humidity-cover export-tray export-tray-full export-tray-face-a export-tray-face-b export-tray-parts export-fit zip clean
 
 help: ## Show available commands
 	@awk 'BEGIN {FS = ":.*## "}; /^[a-zA-Z0-9_-]+:.*## / {printf "%-18s %s\n", $$1, $$2}' $(MAKEFILE_LIST)
@@ -60,7 +60,7 @@ render: ## Render the useful inspection views to PNG
 	done
 	@echo "Rendered views in $(BUILD)/renders/"
 
-export: export-case export-latch export-mounts export-side-latch-hardware export-humidity-cover export-tray export-fit ## Export the complete prototype set
+export: export-case export-latch export-mounts export-front-latch-hardware export-humidity-cover export-tray export-fit ## Export the complete prototype set
 	@printf '\nReady for OrcaSlicer in %s\n' "$(OUT)"
 	@printf 'Print: case_base/lid x1; tray_face_a/face_b as needed for each cartridge\n'
 
@@ -72,32 +72,32 @@ export-case: ## Export base and lid STLs
 			-D 'mesh_profile="$(PROFILE)"' -D "part=\"$$p\"" $(SOURCE); \
 	done
 
-export-latch: ## Export one side latch piece; print it twice
+export-latch: ## Export the single centered front latch piece
 	@mkdir -p $(OUT)/latch
 	$(OPENSCAD) --export-format binstl -o "$(CURDIR)/$(OUT)/latch/latch_piece.stl" \
 		-D 'mesh_profile="$(PROFILE)"' -D 'part="latch_piece"' $(SOURCE)
 
-export-side-latch-hardware: ## Export metal cover + spring blank STLs and DXF cutting templates
-	@mkdir -p $(OUT)/side-latch-hardware
-	$(OPENSCAD) --export-format binstl -o "$(CURDIR)/$(OUT)/side-latch-hardware/side_latch_cover_plate.stl" \
-		-D 'mesh_profile="$(PROFILE)"' -D 'part="side_latch_cover_plate"' $(SOURCE)
-	$(OPENSCAD) --export-format binstl -o "$(CURDIR)/$(OUT)/side-latch-hardware/side_leaf_spring_strip.stl" \
-		-D 'mesh_profile="$(PROFILE)"' -D 'part="side_leaf_spring_strip"' $(SOURCE)
-	$(MAKE) export-side-latch-cover-dxf PROFILE=$(PROFILE)
-	$(MAKE) export-side-spring-template-dxf PROFILE=$(PROFILE)
-	@echo "Print/cut TWO covers and TWO springs."
+export-front-latch-hardware: ## Export front metal cover + spring blank STLs and DXF templates
+	@mkdir -p $(OUT)/front-latch-hardware
+	$(OPENSCAD) --export-format binstl -o "$(CURDIR)/$(OUT)/front-latch-hardware/front_latch_cover_plate.stl" \
+		-D 'mesh_profile="$(PROFILE)"' -D 'part="front_latch_cover_plate"' $(SOURCE)
+	$(OPENSCAD) --export-format binstl -o "$(CURDIR)/$(OUT)/front-latch-hardware/front_leaf_spring_strip.stl" \
+		-D 'mesh_profile="$(PROFILE)"' -D 'part="front_leaf_spring_strip"' $(SOURCE)
+	$(MAKE) export-front-latch-cover-dxf PROFILE=$(PROFILE)
+	$(MAKE) export-front-spring-template-dxf PROFILE=$(PROFILE)
+	@echo "Use ONE cover and ONE spring."
 
-export-side-latch-cover-dxf: ## Export laser-cut 0.030 in stainless cover plate DXF
-	@mkdir -p $(OUT)/side-latch-hardware
-	$(OPENSCAD) -o "$(CURDIR)/$(OUT)/side-latch-hardware/side_latch_cover_plate.dxf" \
-		-D 'mesh_profile="$(PROFILE)"' -D 'sheet_part="side_latch_cover"' src/export_sheet.scad
+export-front-latch-cover-dxf: ## Export centered front 0.030 in stainless cover plate DXF
+	@mkdir -p $(OUT)/front-latch-hardware
+	$(OPENSCAD) -o "$(CURDIR)/$(OUT)/front-latch-hardware/front_latch_cover_plate.dxf" \
+		-D 'mesh_profile="$(PROFILE)"' -D 'sheet_part="front_latch_cover"' src/export_sheet.scad
 
-export-side-spring-template-dxf: ## Export 0.006 in spring-strip cutting/drilling template DXF
-	@mkdir -p $(OUT)/side-latch-hardware
-	$(OPENSCAD) -o "$(CURDIR)/$(OUT)/side-latch-hardware/side_leaf_spring_strip.dxf" \
-		-D 'mesh_profile="$(PROFILE)"' -D 'sheet_part="side_leaf_spring"' src/export_sheet.scad
+export-front-spring-template-dxf: ## Export centered front 0.006 in spring-strip template DXF
+	@mkdir -p $(OUT)/front-latch-hardware
+	$(OPENSCAD) -o "$(CURDIR)/$(OUT)/front-latch-hardware/front_leaf_spring_strip.dxf" \
+		-D 'mesh_profile="$(PROFILE)"' -D 'sheet_part="front_leaf_spring"' src/export_sheet.scad
 
-export-mounts: ## Export one generic side-latch support block (print geometry is fused into base)
+export-mounts: ## Export the two front-latch support blocks (normally fused into base)
 	@mkdir -p $(OUT)/spring-mounts
 	@for p in left_leaf_spring_mount right_leaf_spring_mount; do \
 		echo "Exporting $$p"; \
