@@ -149,9 +149,9 @@ tray_magnet_x = (tray_body_w - tray_border_w) / 2;
 // Compact enclosure for one full-width H946 10-reed-per-face cartridge.
 // An integrated humidity bay now lives under the cartridge, so the case is
 // slightly taller than the earlier no-Boveda variant. Width/depth and the
-// latch/hinge logic stay intentionally stable.
+// hinge and seal logic stay intentionally stable.
 v2_case_w = 190.00;
-v2_case_d = 101.00;
+v2_case_d = 107.00;
 v2_case_h = 31.50;
 v2_base_h = 16.25;
 v2_lid_h = v2_case_h - v2_base_h;
@@ -169,7 +169,7 @@ v2_tray_recess_d = tray_d_open() + 2 * v2_tray_xy_clearance;
 v2_tray_recess_r = tray_body_corner_r_open() + v2_tray_xy_clearance;
 v2_tray_x = 0;
 // Keep the cartridge exactly centered in the enclosure. The compact front
-// latch now lives entirely in the symmetric front service margin.
+// purchased roller catch now lives entirely in the symmetric front service margin.
 v2_tray_y = 0;
 v2_inner_w = v2_case_w - 2 * v2_wall;
 v2_inner_d = v2_case_d - 2 * v2_wall;
@@ -268,195 +268,105 @@ v2_hinge_y = -v2_case_d / 2 - v2_hinge_outer_d / 2 -
 v2_hinge_pin_len = v2_hinge_usable + 2.00;
 
 // ---------------------------------------------------------------------------
-// CENTERED FRONT LATCH + LEAF-SPRING ENCLOSURE
+// ALISE CA100S-4P 40 mm DOUBLE-ROLLER CATCH
 // ---------------------------------------------------------------------------
-// This is the exact same spring-biased plate / rounded closing ramp / flat
-// catch / recessed lid-groove logic used by the previous side latches. The
-// only change is placement: one compact mechanism is installed once at the
-// center of the front wall. Local +Y is the front/outward direction.
-latch_floor_pocket_depth = 1.00;
-latch_floor_z = v2_base_floor_t - latch_floor_pocket_depth;
-latch_pocket_side_clearance = 0.25;
-latch_pocket_back_relief = 0.20;
+// Purchased hardware: Amazon ASIN B0D8L6GJWK, Alise model CA100S-4P,
+// manufacturer part CA100-4P, 40 mm silver version.
+//
+// Seller-published dimensional drawing:
+//   main mounting plate: 40 x 9 mm
+//   main mounting-hole pitch: 30 mm
+//   roller/body span: 24 mm
+//   overall catch height: 10 mm
+//   mounting-hole diameter: 4 mm
+//   striker plate: 22 x 8 mm
+//   striker mounting-hole pitch: 15 mm
+//   striker tongue rise: 5 mm
+//
+// The seller does not publish plate thickness or every radius. Those values
+// below are preview-only assumptions and do NOT control the printed mounting
+// locations. The printed case uses the published plate envelopes, pitches, and
+// overall heights, with small adjustable clearances.
+alise_catch_main_l = 40.00;
+alise_catch_main_w = 9.00;
+alise_catch_main_h = 10.00;
+alise_catch_body_span = 24.00;
+alise_catch_main_hole_pitch = 30.00;
+alise_catch_mount_hole_d = 4.00;
+alise_catch_strike_l = 22.00;
+alise_catch_strike_w = 8.00;
+alise_catch_strike_hole_pitch = 15.00;
+alise_catch_strike_tongue_h = 5.00;
 
-// Narrower moving plate for a cleaner, more integrated front button.
-latch_body_width = 24.00;
-latch_body_depth = 2.40;
-latch_body_bottom_z = latch_floor_z;
-latch_body_height = v2_base_h - latch_body_bottom_z;
+// Preview-only metal thicknesses; measure the delivered parts before freezing
+// a production revision. They are deliberately isolated from fit-critical
+// dimensions.
+alise_catch_main_plate_t_preview = 1.20;
+alise_catch_strike_plate_t_preview = 1.20;
+alise_catch_strike_tongue_w_preview = 5.00;
+alise_catch_strike_tongue_d_preview = 6.00;
+alise_catch_preview_edge_r = 0.55;
 
-// Keep the proven release travel exactly unchanged.
-latch_inward_travel = 2.60;
-latch_rest_wall_clearance = 0.10;
-latch_wall_inner_y = v2_case_d / 2 - v2_wall;
-latch_body_y = latch_wall_inner_y - latch_rest_wall_clearance -
-               latch_body_depth / 2;
+// Centered front installation. The 40 x 9 catch is now buried directly into
+// a locally thickened center section of the front wall rather than sitting on
+// a visible pedestal. The enclosure remains symmetric: case depth is increased
+// equally front/back so the centered tray and humidity bay do not move.
+roller_catch_center_x = 0;
+roller_catch_outer_skin = 3.00;
+roller_catch_inner_skin = 0.80;
+roller_catch_top_gap = 0.15;
+roller_catch_xy_clearance = 0.20;
+roller_catch_center_y = v2_case_d / 2 - roller_catch_outer_skin -
+                        alise_catch_main_w / 2;
+roller_catch_main_base_z = v2_base_h - alise_catch_main_h -
+                           roller_catch_top_gap;
 
-latch_pocket_width = latch_body_width + 2 * latch_pocket_side_clearance;
-latch_pocket_front_y = latch_wall_inner_y;
-latch_pocket_back_y = latch_body_y - latch_body_depth / 2 -
-                      latch_inward_travel - latch_pocket_back_relief;
-latch_pocket_depth_y = latch_pocket_front_y - latch_pocket_back_y;
-latch_pocket_center_y = (latch_pocket_front_y + latch_pocket_back_y) / 2;
+// Integrated front-wall housing. 12.8 mm total local thickness leaves a
+// robust 3 mm exterior skin, the full 9 mm hardware width, and a small inner
+// web while still clearing the centered cartridge by roughly 0.35 mm.
+roller_catch_front_wall_t = roller_catch_outer_skin +
+                            alise_catch_main_w +
+                            roller_catch_inner_skin;
+roller_catch_front_wall_inner_y = v2_case_d / 2 - roller_catch_front_wall_t;
+roller_catch_base_boss_w = alise_catch_main_l + 4.00;
+roller_catch_base_boss_d = roller_catch_front_wall_t;
+roller_catch_base_boss_center_y = v2_case_d / 2 -
+                                  roller_catch_front_wall_t / 2;
+roller_catch_base_boss_h = v2_base_h - v2_base_floor_t;
 
-// Small centered button. It retains the existing behavior: at rest it is
-// proud by exactly the release travel, and at full press it becomes flush with
-// the exterior front wall. A tight running gap makes it read as part of the
-// front wall rather than an added-on latch housing.
-latch_button_width = 20.00;
-latch_button_height = 7.20;
-latch_button_corner_radius = 1.80;
-latch_button_center_x = 0;
-latch_button_center_z = v2_base_h / 2;
-latch_button_bottom_z = latch_button_center_z - latch_button_height / 2;
-latch_button_bottom_offset = latch_button_bottom_z - latch_body_bottom_z;
-latch_button_exposure = latch_inward_travel;
-latch_button_pressed_exposure = latch_button_exposure - latch_inward_travel;
-latch_feature_overlap = 0.15;
-latch_button_depth =
-    v2_case_d / 2 + latch_button_exposure -
-    (latch_body_y + latch_body_depth / 2 - latch_feature_overlap);
-latch_button_face_fraction =
-    (latch_button_width * latch_button_height) /
-    (v2_case_w * v2_base_h);
+// The well opens from the seam down to the catch plate. Its plan envelope is
+// only 0.20 mm larger per side than the seller's exact 40 x 9 mm plate, making
+// the hardware look molded into the frame. Countersunk mounting screws remain
+// accessible at the bottom of the well.
+roller_catch_well_h = v2_base_h - roller_catch_main_base_z + epsilon;
+roller_catch_mount_pilot_d = 2.50;
+roller_catch_mount_pilot_depth = 3.00;
+roller_catch_well_leadin = 0.35;
 
-// Compact pair of rigid supports on either side of the front latch. They are
-// fused into the base and clamp the same bowed spring strip behind the moving
-// plate. The whole mechanism stays inside the front margin of the centered tray.
-leaf_spring_mount_centers_x = [-15.50, 15.50];
-leaf_spring_mount_width = 4.50;
-leaf_spring_mount_depth = 3.80;
-leaf_spring_mount_height = v2_base_h - v2_base_floor_t;
-leaf_spring_mount_inner_gap =
-    leaf_spring_mount_centers_x[1] - leaf_spring_mount_centers_x[0] -
-    leaf_spring_mount_width;
-latch_mount_side_gap =
-    (leaf_spring_mount_inner_gap - latch_body_width) / 2;
-leaf_spring_mount_y = latch_wall_inner_y - leaf_spring_mount_depth / 2;
+// The 22 x 8 striker is embedded separately into a local lid-rim thickening.
+// Its metal plate ends flush with the seam; only the published 5 mm tongue
+// projects down into the rollers after the lid is closed.
+roller_catch_lid_outer_skin = v2_case_d / 2 -
+                              (roller_catch_center_y + alise_catch_strike_w/2);
+roller_catch_lid_inner_skin = 0.80;
+roller_catch_lid_wall_t = roller_catch_lid_outer_skin +
+                          alise_catch_strike_w +
+                          roller_catch_lid_inner_skin;
+roller_catch_lid_boss_w = alise_catch_strike_l + 4.00;
+roller_catch_lid_boss_d = roller_catch_lid_wall_t;
+roller_catch_lid_boss_center_y = v2_case_d / 2 - roller_catch_lid_wall_t / 2;
+roller_catch_strike_pilot_d = 2.50;
+roller_catch_strike_pilot_depth = 2.50;
+roller_catch_lid_boss_h = alise_catch_strike_plate_t_preview +
+                          roller_catch_strike_pilot_depth + 0.80;
+roller_catch_strike_seat_depth = alise_catch_strike_plate_t_preview + 0.05;
+roller_catch_strike_base_z = v2_lid_h - alise_catch_strike_plate_t_preview;
 
-// M2 cover fasteners. One thin metal cover hides the spring and moving-plate
-// internals from the case interior.
-side_latch_cover_screw_d = 2.30;
-side_latch_mount_pilot_d = 1.60;
-side_latch_cover_screw_z = leaf_spring_mount_height * 0.56;
-side_latch_cover_t = 0.76; // 0.030 in 304 stainless
-side_latch_cover_h = leaf_spring_mount_height - 0.80;
-side_latch_cover_bottom_z = v2_base_floor_t + 0.40;
-side_latch_cover_length =
-    leaf_spring_mount_centers_x[1] - leaf_spring_mount_centers_x[0] +
-    leaf_spring_mount_width;
-side_latch_cover_outer_y = latch_wall_inner_y - leaf_spring_mount_depth;
-side_latch_cover_center_y = side_latch_cover_outer_y - side_latch_cover_t / 2;
-
-// Same spring specification as before, now shorter because the front mechanism
-// is more compact.
-side_leaf_spring_t = 0.1524;
-side_leaf_spring_h = 7.00;
-side_leaf_spring_length =
-    leaf_spring_mount_centers_x[1] - leaf_spring_mount_centers_x[0] + 4.00;
-side_leaf_spring_prebow =
-    (latch_body_y - latch_body_depth / 2) - side_latch_cover_outer_y;
-side_leaf_spring_screw_d = side_latch_cover_screw_d;
-
-// ---------------------------------------------------------------------------
-// FRONT LATCH HOOK + DESCENDING LID STRIKER
-// ---------------------------------------------------------------------------
-// The pushbutton and spring logic stay the same, but the locking geometry is
-// inverted: a compact hook lives fully below the reed plane in the front
-// service strip, and a striker descends from the lid to engage it. This keeps
-// anything that would snag reed removal out of the tray opening.
-latch_tongue_front_setback = 0.50;
-latch_tongue_depth = latch_body_depth - latch_tongue_front_setback;
-latch_catch_width = 13.50;
-latch_catch_height = 6.60;
-latch_catch_extension = 2.15;
-latch_catch_underside_above_seam = 3.00;
-latch_catch_crest_top_above_seam = 5.20;
-latch_catch_ramp_start_inset = 0.60;
-latch_catch_edge_round = 0.55;
-latch_catch_notch_round = 0.35;
-latch_catch_plan_corner_radius = 1.20;
-// The profile continues this far below the seam so the rounded bottom corners
-// are buried inside the plate instead of showing as a notch at the joint.
-latch_catch_root_sink = 1.60;
-
-latch_catch_front_y = latch_body_y + latch_body_depth / 2 -
-                      latch_tongue_front_setback;
-latch_catch_back_y = latch_body_y - latch_body_depth / 2;
-latch_catch_fillet_outer_y = latch_catch_front_y +
-                             latch_catch_notch_round;
-latch_catch_crest_y = latch_catch_front_y + latch_catch_extension;
-latch_catch_ramp_start_y = latch_catch_front_y -
-                           latch_catch_ramp_start_inset;
-latch_catch_crest_height =
-    latch_catch_crest_top_above_seam - latch_catch_underside_above_seam;
-// How far the button must move before the catch clears the lid wall.
-latch_release_retraction = latch_catch_crest_y - latch_wall_inner_y;
-// Height at which the closing ramp crosses the lid wall face. Everything the
-// tongue occupies outboard of that wall lies below this line, so the lid groove
-// roof only has to clear this one number.
-latch_catch_ramp_wall_cross_z =
-    latch_catch_crest_top_above_seam +
-    (latch_catch_crest_y - latch_wall_inner_y) /
-    (latch_catch_crest_y - latch_catch_ramp_start_y) *
-    (latch_catch_height - latch_catch_crest_top_above_seam);
-
-// FDM running clearance around the removable plate and the button stem.
-latch_fit_clearance = 0.25;
-// Used only by the CLI clearance checks: the locked catch underside and the
-// groove floor are meant to touch, so collision sampling backs off this far.
-latch_seat_check_relief = 0.02;
-
-// The lowered base hook engages a groove inside a descending lid striker.
-// The hook/groove relation still keeps a small intentional seating relief
-// before the seal load pulls everything tight.
-v2_lid_latch_groove_width = latch_catch_width + 0.60;
-v2_lid_latch_groove_depth = 1.80;
-v2_lid_latch_groove_floor_above_seam = 2.80;
-v2_lid_latch_groove_roof_above_seam =
-    latch_catch_ramp_wall_cross_z + 0.25;
-v2_lid_latch_groove_height =
-    v2_lid_latch_groove_roof_above_seam -
-    v2_lid_latch_groove_floor_above_seam;
-v2_lid_latch_groove_corner_radius = 0.60;
-v2_lid_latch_groove_inner_y = latch_wall_inner_y;
-v2_lid_latch_groove_outer_y =
-    v2_lid_latch_groove_inner_y + v2_lid_latch_groove_depth;
-v2_lid_latch_groove_outer_skin =
-    v2_wall - v2_lid_latch_groove_depth;
-
-// Lower the locking hook below the seam so nothing projects up into the tray
-// opening. The lid then carries a descending striker with the receiving groove.
-latch_striker_drop = 8.00;
-latch_hook_base_z = v2_base_h - latch_striker_drop;
-
-// Descending striker proportions.
-v2_lid_striker_embed = 2.00;
-v2_lid_striker_side_margin = 2.20;
-v2_lid_striker_inboard_margin = -0.15;
-v2_lid_striker_outboard_margin = 1.20;
-v2_lid_striker_corner_r = 1.10;
-v2_lid_striker_width = v2_lid_latch_groove_width + 2 * v2_lid_striker_side_margin;
-v2_lid_striker_back_y = v2_lid_latch_groove_inner_y - v2_lid_striker_inboard_margin;
-v2_lid_striker_front_y = v2_lid_latch_groove_outer_y + v2_lid_striker_outboard_margin;
-v2_lid_striker_depth = v2_lid_striker_front_y - v2_lid_striker_back_y;
-v2_lid_striker_center_y = (v2_lid_striker_front_y + v2_lid_striker_back_y) / 2;
-v2_lid_striker_total_h = latch_striker_drop + v2_lid_striker_embed;
-v2_lid_striker_bottom_below_seam = latch_striker_drop;
-
-// Locked-state results.
-latch_lid_rest_lift = latch_catch_underside_above_seam -
-                      v2_lid_latch_groove_floor_above_seam;
-latch_crest_roof_clearance =
-    v2_lid_latch_groove_roof_above_seam -
-    latch_catch_crest_top_above_seam;
-latch_lid_engagement = latch_catch_crest_y - latch_wall_inner_y;
-
-// 2 mm silicone O-ring prototype seal. The centered 100 mm-deep case uses a
-// 170 mm ID ring so the same perimeter gland remains at about 1-3% stretch.
+// 2 mm silicone O-ring prototype seal. The centered 107 mm-deep case uses a
+// 175 mm ID ring so the same perimeter gland remains at about 1-3% stretch.
 // Groove width intentionally leaves more gland volume than
 // the V1 groove while the 1.45 mm depth gives ~27.5% nominal axial squeeze.
-v2_gasket_id = 170.0;
+v2_gasket_id = 175.0;
 v2_gasket_d = 2.00;
 v2_gasket_groove_w = 2.60;
 v2_gasket_groove_d = 1.45;
@@ -476,7 +386,7 @@ v2_gasket_stretch = v2_gasket_path_len / v2_gasket_free_center_len - 1;
 
 // Lid mark. Keep this shallow for a cheap FDM appearance prototype. It is
 // placed by its bottom-right corner as seen looking down at the closed case
-// with the button facing you.
+// with the roller catch facing you.
 v2_engraving_enable = true;
 v2_brand_text = "ASASI";
 v2_brand_size = 7.00;
@@ -485,12 +395,6 @@ v2_brand_font = "Liberation Sans:style=Bold";
 v2_brand_margin_x = 15.00;
 v2_brand_margin_y = 11.00;
 
-// Latch results that depend on the seal dimensions above.
-latch_gasket_squeeze = (v2_gasket_d - v2_gasket_groove_d) -
-                       latch_lid_rest_lift;
-// Lid material left between the seal gland and the latch pocket floor.
-latch_groove_seal_web = v2_lid_latch_groove_floor_above_seam -
-                        v2_gasket_groove_d;
 
 // Preview-only exploded/open spacing.
 exploded_gap = 18;
@@ -553,9 +457,6 @@ assert(v2_tray_support_inner_w < v2_tray_support_outer_w - 4.00,
        "Tray support frame side rails are too thin");
 assert(v2_tray_support_inner_d < v2_tray_support_outer_d - 4.00,
        "Tray support frame front/back rails are too thin");
-assert(v2_front_margin >= leaf_spring_mount_depth +
-       side_latch_cover_t + 0.75,
-       "Front service strip is too narrow for latch, spring, and metal cover");
 assert(v2_base_floor_t - v2_tray_recess_depth -
        v2_floor_magnet_depth >= 1.00,
        "Magnet pockets leave less than 1 mm of base-floor skin");
@@ -564,108 +465,39 @@ assert(v2_tray_top_z + 1.00 <= v2_lid_inside_roof_z,
 assert(v2_gasket_groove_w + v2_gasket_outer_land <= v2_wall,
        "Gasket groove does not fit inside the rim");
 assert(v2_gasket_stretch >= 0.01 && v2_gasket_stretch <= 0.03,
-       str("2x170 O-ring stretch is ", v2_gasket_stretch * 100,
+       str("2x175 O-ring stretch is ", v2_gasket_stretch * 100,
            "% and should stay between 1% and 3%"));
 assert(v2_hinge_bore_d > v2_hinge_pin_d,
        "Hinge needs positive pin clearance");
 assert(v2_hinge_knuckles % 2 == 1,
        "Hinge should use an odd number of alternating knuckles");
-assert(abs(leaf_spring_mount_height -
-           (v2_base_h - v2_base_floor_t)) < 0.01,
-       "Front spring supports must fill the available base height");
-assert(side_latch_cover_length <= v2_inner_w - 8.00,
-       "Front latch cover is too wide for the case interior");
-assert(latch_body_width > 0 &&
-       latch_body_width < leaf_spring_mount_inner_gap,
-       "Front latch body must fit between its spring supports");
-assert(latch_mount_side_gap >= 1.00,
-       "Front latch needs at least 1 mm running space from each support");
-assert(latch_floor_pocket_depth > 0 &&
-       v2_base_floor_t - latch_floor_pocket_depth >= 1.00,
-       "Latch slide pan leaves less than 1 mm of base-floor skin");
-assert(latch_pocket_back_y >= v2_tray_recess_d / 2 + 0.60,
-       "Front latch slide pan collides with the centered cartridge well");
-assert(side_latch_cover_center_y - side_latch_cover_t / 2 >=
-       v2_tray_recess_d / 2 + 0.60,
-       "Metal front-latch cover collides with the centered cartridge well");
-assert(side_leaf_spring_prebow > 0.20 &&
-       side_leaf_spring_prebow < latch_inward_travel + 0.30,
-       "Leaf spring pre-bow must nearly flatten at full button travel");
-assert(side_leaf_spring_t >= 0.12 && side_leaf_spring_t <= 0.22,
-       "Leaf spring thickness should stay in the 0.12-0.22 mm tuning range");
-assert(abs(latch_body_bottom_z + latch_body_height - v2_base_h) < 0.01,
-       "Latch plate should end at the base-case seam");
-assert(latch_rest_wall_clearance >= 0 &&
-       latch_rest_wall_clearance < 0.30,
-       "Locked front latch must rest against the inner front wall");
-assert(latch_button_width < latch_body_width,
-       "Exterior latch button must be narrower than its body");
-assert(latch_button_corner_radius > 0 &&
-       2 * latch_button_corner_radius < latch_button_height &&
-       2 * latch_button_corner_radius < latch_button_width,
-       "Button corner radius must fit inside the button face");
-assert(latch_button_bottom_z >= latch_floor_z - 0.01,
-       "Exterior button must not drop below the latch slide pan");
-assert(latch_button_bottom_z - latch_fit_clearance > 1.50,
-       "Button opening leaves too little material under the front wall");
-assert(latch_button_bottom_z + latch_button_height < v2_base_h - 0.50,
-       "Exterior button opening is too close to the case seam");
-assert(abs(latch_button_pressed_exposure) < 0.01,
-       "Fully pressed button must finish flush with the case exterior");
-assert(abs(latch_button_center_x) < 0.01 &&
-       abs(latch_button_center_z - v2_base_h / 2) < 0.01,
-       "Front button must be centered on its moving latch and case height");
-assert(latch_button_face_fraction >= 0.04,
-       "Front button should remain broad enough to press comfortably");
-assert(latch_catch_width > 0 &&
-       latch_catch_width < latch_body_width,
-       "Closing tongue width must fit on the latch plate");
-assert(latch_catch_extension > latch_rest_wall_clearance &&
-       latch_release_retraction > 0,
-       "Catch must actually reach past the lid wall face");
-assert(latch_inward_travel > latch_release_retraction + 0.50,
-       "Button travel must fully retract the catch from the lid groove");
-assert(latch_catch_crest_height >= 1.80,
-       "Catch crest is too shallow to hold the lid reliably");
-assert(latch_catch_crest_top_above_seam < latch_catch_height,
-       "Catch crest must stay below the tongue crown");
-assert(latch_hook_base_z >= v2_base_floor_t + 1.50,
-       "Lowered hook is too close to the base floor");
-assert(latch_hook_base_z + latch_catch_height < v2_base_h - 1.00,
-       "Lowered hook rises too high in the base");
-assert(latch_catch_ramp_start_inset > 0 &&
-       latch_catch_ramp_start_inset < latch_tongue_depth / 2,
-       "Ramp must start inside the tongue front face");
-assert(latch_catch_edge_round > 0 &&
-       2 * latch_catch_edge_round < latch_catch_crest_height,
-       "Catch edge rounding must fit on the crest face");
-assert(latch_catch_plan_corner_radius > 0 &&
-       2 * latch_catch_plan_corner_radius < latch_catch_width,
-       "Tongue plan radius must fit inside its width");
-assert(latch_tongue_front_setback > 0 &&
-       latch_tongue_front_setback < latch_body_depth / 2,
-       "Tongue setback must fit inside the latch plate");
-assert(latch_catch_fillet_outer_y <= latch_wall_inner_y - 0.15,
-       "Fillet under the catch must stay inside the lid wall line");
-assert(latch_catch_root_sink > 0 &&
-       latch_catch_root_sink > latch_catch_edge_round,
-       "Tongue profile must sink far enough into the plate");
-assert(v2_lid_latch_groove_width > latch_catch_width &&
-       v2_lid_latch_groove_depth > latch_lid_engagement,
-       "Striker groove needs positive clearance around the catch");
-assert(v2_lid_striker_width < v2_inner_w - 10.00,
-       "Descending striker is too wide for the centered interior");
-assert(v2_lid_striker_depth < v2_front_margin + v2_wall + 2.50,
-       "Descending striker is too deep for the front service strip");
-assert(v2_lid_striker_bottom_below_seam > 0.50,
-       "Descending striker must extend below the seam to engage the lowered hook");
-assert(latch_lid_rest_lift > 0.10 && latch_lid_rest_lift < 0.35,
-       str("Hook/groove seating relief is ", latch_lid_rest_lift,
-           " mm and should stay between 0.10 and 0.35 mm"));
-assert(latch_crest_roof_clearance > 0,
-       "Striker groove roof must clear the closing ramp at the wall face");
-assert(latch_gasket_squeeze >= 0.25 && latch_gasket_squeeze <= 0.45,
-       str("Locked O-ring squeeze is ", latch_gasket_squeeze,
-           " mm and should stay between 0.25 and 0.45 mm"));
-assert(v2_lid_striker_embed >= 1.50,
-       "Striker needs enough embed into the lid body");
+assert(roller_catch_base_boss_h > 2.00,
+       "Integrated roller-catch wall housing is too shallow");
+assert(roller_catch_front_wall_inner_y >= v2_tray_recess_d / 2 + 0.25,
+       "Integrated roller-catch wall housing collides with the centered tray");
+assert(v2_case_d / 2 -
+       (roller_catch_center_y +
+        (alise_catch_main_w + 2*roller_catch_xy_clearance)/2) >= 2.50,
+       "Roller-catch well leaves less than 2.5 mm exterior skin");
+assert((roller_catch_center_y -
+        (alise_catch_main_w + 2*roller_catch_xy_clearance)/2) -
+       roller_catch_front_wall_inner_y >= 0.50,
+       "Roller-catch well leaves too little inner wall web");
+assert(roller_catch_main_base_z + alise_catch_main_h <=
+       v2_base_h - 0.10,
+       "Alise rollers should finish just below the base seam");
+assert(roller_catch_lid_boss_h >
+       alise_catch_strike_plate_t_preview + roller_catch_strike_pilot_depth,
+       "Striker rim thickening is too shallow for its plate and pilot holes");
+assert(alise_catch_main_hole_pitch < alise_catch_main_l,
+       "Main catch mounting-hole pitch must fit its plate");
+assert(alise_catch_strike_hole_pitch < alise_catch_strike_l,
+       "Striker mounting-hole pitch must fit its plate");
+assert(roller_catch_mount_pilot_depth < roller_catch_main_base_z - 0.80,
+       "Main catch pilot holes leave too little bottom skin");
+assert(roller_catch_strike_pilot_depth < roller_catch_lid_boss_h,
+       "Striker pilot holes are too deep for the lid rim thickening");
+assert(roller_catch_center_y +
+       (alise_catch_strike_w + 2*roller_catch_xy_clearance)/2 <=
+       v2_case_d/2 - v2_gasket_outer_land - v2_gasket_groove_w - 0.10,
+       "Embedded striker pocket reaches the gasket groove");

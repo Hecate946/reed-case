@@ -6,14 +6,13 @@
   - real metal hinge pin
   - real magnets/steel targets
   - real silicone O-ring
-  - two internal spring-support blocks
-  - separate full-height moving front latch and matching case openings
+  - centered Alise CA100S-4P double-roller catch hardware
+  - no custom moving latch, button, leaf spring, or latch cover
 */
 
 include <../lib/geometry.scad>
 include <../lib/hardware.scad>
-include <spring_mounts.scad>
-include <latch.scad>
+include <roller_catch.scad>
 
 module v2_case_cup(h, floor_t) {
     rounded_cup(v2_case_w, v2_case_d, h,
@@ -121,7 +120,7 @@ module v2_gasket_groove_cut() {
 
 module v2_lid_engraving_cut() {
     // Anchored to the corner that reads as bottom-right when you look down at
-    // the closed case with the button facing you. The lid is mirrored in Z on
+    // the closed case with the roller catch at the front edge. The lid is mirrored in Z on
     // assembly, so the mark is laid out rotated here and comes out upright and
     // correctly handed on the finished exterior.
     if (v2_engraving_enable)
@@ -144,20 +143,17 @@ module case_base_body() {
             v2_base_hinge();
             v2_tray_support_frame();
             installed_humidity_bay();
+            roller_catch_base_boss();
         }
 
         v2_floor_hardware_pockets();
         v2_humidity_cover_base_pockets();
-        humidity_bay_finger_scoops();
-        latch_case_fit_openings();
+        roller_catch_base_mount_cuts();
     }
 }
 
 module case_base() {
-    union() {
-        case_base_body();
-        installed_leaf_spring_mounts();
-    }
+    case_base_body();
 }
 
 module case_lid() {
@@ -166,22 +162,24 @@ module case_lid() {
             union() {
                 v2_case_cup(v2_lid_h, v2_lid_roof_t);
                 v2_lid_hinge();
+                roller_catch_lid_boss();
             }
             v2_gasket_groove_cut();
             v2_lid_engraving_cut();
+            roller_catch_lid_mount_cuts();
         }
-        lid_descending_striker();
     }
 }
 
 
 module humidity_bay_divider_wall() {
     divider_h = v2_humidity_cover_z - v2_humidity_bay_floor_z;
+    divider_d = v2_tray_support_inner_d + 2 * epsilon;
     translate([v2_humidity_bay_x - v2_humidity_bay_divider_t / 2,
-               v2_humidity_bay_y - v2_humidity_bay_inner_d / 2,
+               v2_humidity_bay_y - v2_tray_support_inner_d / 2 - epsilon,
                v2_humidity_bay_floor_z])
         cube([v2_humidity_bay_divider_t,
-              v2_humidity_bay_inner_d,
+              divider_d,
               divider_h]);
 }
 
