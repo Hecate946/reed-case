@@ -232,13 +232,18 @@ v2_humidity_cover_z = v2_tray_bottom_z - v2_humidity_cover_t;
 v2_humidity_cover_finger_r = 7.00;
 v2_humidity_cover_finger_inset = 0.10;
 
-// Denser slot field than the first prototype.
-v2_humidity_cover_slot_l = 12.80;
-v2_humidity_cover_slot_w = 1.60;
-v2_humidity_cover_slot_rows = 9;
-v2_humidity_cover_slot_cols = 12;
-v2_humidity_cover_slot_pitch_x = 11.80;
-v2_humidity_cover_slot_pitch_y = 6.00;
+// Staggered honeycomb ventilation field. The smaller repeated openings leave
+// a continuous load-sharing web instead of long, flexible slats while still
+// keeping roughly half of the center area open to airflow.
+v2_humidity_cover_vent_r = 3.35;
+// Odd-count rows have 15 cells; the rows between them have 16. Centering
+// each row independently gives the lattice exact left/right symmetry while
+// the odd row count mirrors the same pattern front-to-back.
+v2_humidity_cover_vent_cols = 15;
+v2_humidity_cover_vent_rows = 7;
+v2_humidity_cover_vent_pitch_x = 8.60;
+v2_humidity_cover_vent_pitch_y = 7.30;
+v2_humidity_cover_vent_inset = 6.00;
 
 // No cover magnets for now: the lid simply sits on the ledge and lifts out
 // by the semicircular finger notch. Keep these zeroed placeholders so the

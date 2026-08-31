@@ -5,7 +5,7 @@
 */
 
 mesh_profile = "fine"; // "prototype" or "fine"
-view = "print_layout"; // "case_open", "case_closed", "case_exploded", "case_closed_front", "roller_catch_mechanism", "roller_catch_hardware", "bottom_case", "bottom_case_shell", "humidity_bay_open", "humidity_bay_closed", "tray", "tray_test", "print_layout"
+view = "bottom_case"; // "case_open", "case_closed", "case_exploded", "case_closed_front", "roller_catch_mechanism", "roller_catch_hardware", "bottom_case", "bottom_case_shell", "humidity_bay_open", "humidity_bay_closed", "tray", "tray_test", "print_layout"
 
 // Useful views:
 // view = "case_open";

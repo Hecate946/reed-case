@@ -219,30 +219,46 @@ module humidity_cover_seat_ring() {
             }
 }
 
-module humidity_cover_slot_clip_2d() {
-    inset = 5.40;
-    clip_r = max(v2_humidity_cover_corner_r - inset, 0.8);
-    offset(r = clip_r)
-        square([v2_humidity_cover_w - 2 * inset - 2 * clip_r,
-                v2_humidity_cover_d - 2 * inset - 2 * clip_r],
-               center = true);
-}
+module humidity_cover_vents_2d() {
+    // Fully contained, symmetric honeycomb field. Rows alternate between 15
+    // and 16 openings; because each row is independently centered and there
+    // are an odd number of rows, the pattern mirrors cleanly on both axes.
+    // The field is sized to stop before the rounded perimeter and to leave a
+    // solid bridge around the front semicircular finger notch, so no hexagon
+    // is clipped by either feature.
+    hex_half_w = v2_humidity_cover_vent_r * cos(30);
+    staggered_cols = v2_humidity_cover_vent_cols + 1;
+    pattern_half_w = (staggered_cols - 1) / 2 *
+                     v2_humidity_cover_vent_pitch_x + hex_half_w;
+    pattern_half_d = (v2_humidity_cover_vent_rows - 1) / 2 *
+                     v2_humidity_cover_vent_pitch_y +
+                     v2_humidity_cover_vent_r;
+    vent_limit_x = v2_humidity_cover_w / 2 - v2_humidity_cover_vent_inset;
+    vent_limit_y = v2_humidity_cover_d / 2 - v2_humidity_cover_vent_inset;
+    finger_inner_y = v2_humidity_cover_d / 2 -
+                     v2_humidity_cover_finger_inset -
+                     v2_humidity_cover_finger_r;
 
-module humidity_cover_slots_2d() {
-    // Run the slats across essentially the full lid and clip them to a rounded
-    // inboard boundary so the vent field reads edge-to-edge.
-    intersection() {
-        humidity_cover_slot_clip_2d();
-        union()
-            for (ix = [-(v2_humidity_cover_slot_cols - 1) / 2 :
-                        (v2_humidity_cover_slot_cols - 1) / 2],
-                 iy = [-(v2_humidity_cover_slot_rows - 1) / 2 :
-                        (v2_humidity_cover_slot_rows - 1) / 2])
-                translate([ix * v2_humidity_cover_slot_pitch_x,
-                           iy * v2_humidity_cover_slot_pitch_y])
-                    capsule_2d(v2_humidity_cover_slot_l,
-                               v2_humidity_cover_slot_w);
-    }
+    assert(pattern_half_w <= vent_limit_x,
+           "Humidity-cover honeycomb is too wide and would clip at the ends");
+    assert(pattern_half_d <= vent_limit_y,
+           "Humidity-cover honeycomb is too deep and would clip at the edges");
+    assert(pattern_half_d + 1.50 <= finger_inner_y,
+           "Humidity-cover honeycomb is too close to the finger notch");
+
+    union()
+        for (row = [0 : v2_humidity_cover_vent_rows - 1]) {
+            iy = row - (v2_humidity_cover_vent_rows - 1) / 2;
+            row_cols = v2_humidity_cover_vent_cols + (row % 2);
+
+            for (col = [0 : row_cols - 1]) {
+                ix = col - (row_cols - 1) / 2;
+                translate([ix * v2_humidity_cover_vent_pitch_x,
+                           iy * v2_humidity_cover_vent_pitch_y])
+                    rotate(30)
+                        circle(r = v2_humidity_cover_vent_r, $fn = 6);
+            }
+        }
 }
 
 module humidity_cover() {
@@ -254,10 +270,10 @@ module humidity_cover() {
                            v2_humidity_cover_t],
                           v2_humidity_cover_corner_r);
 
-        // Slot field.
+        // Staggered honeycomb ventilation field.
         translate([0, 0, v2_humidity_cover_z - epsilon])
             linear_extrude(height = v2_humidity_cover_t + 2 * epsilon)
-                humidity_cover_slots_2d();
+                humidity_cover_vents_2d();
 
         // Semicircular finger hole at the front edge.
         translate([0,
