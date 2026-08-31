@@ -1,0 +1,8 @@
+build/
+*.stl
+*.3mf
+*.amf
+*.csg
+*.png
+.DS_Store
+
