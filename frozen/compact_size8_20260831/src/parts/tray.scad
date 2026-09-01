@@ -505,19 +505,15 @@ function tray_body_w_open() = tray_passage_field_w_open() + 2 * tray_border_w_op
 function tray_body_corner_r_open() = min(tray_corner_r,
                                          max(tray_border_w_open() - 0.50,
                                              0.50));
-// V9 ultra-short cartridge. The 76.10 mm depth keeps the 67.50 mm reed at
-// full length while trimming the longitudinal handling allowance to 2.40 mm
-// total (about 1.20 mm at heel and tip when centered). This is intentionally
-// tight, but the lowered case seam leaves the reed heels exposed for removal.
-function tray_d_open() = 76.10;
+function tray_d_open() = 80.00;
 // The new cartridge is only two mirrored shell halves. There is no center
 // humidity/core layer. Each shell backing is a little thicker so the two
 // halves form a rigid spine when fused back-to-back.
-function tray_face_t_open() = tray_face_t_compact_open();
+function tray_face_t_open() = 1.65;
 function tray_face_join_overlap_open() = 0.12;
 function tray_texture_h_open() = 0.38;
 function tray_total_h_open() =
-    2 * (tray_face_t_open() + tray_guide_h_open()) -
+    2 * (tray_face_t_open() + tray_guide_h) -
     tray_face_join_overlap_open();
 function tray_tip_stop_inner_y_open() = tray_d_open() / 2 - tray_border_w_open();
 function tray_slot_start_y_open() = -tray_d_open() / 2;
@@ -533,37 +529,6 @@ function tray_support_split_y() = tray_reed_heel_y_open() + reed_length * 0.65;
 tray_o_ring_fractions_open = [0.40, 0.50];
 function tray_o_ring_y_open(fraction) =
     tray_reed_heel_y_open() + reed_length * fraction;
-
-// Passive Protec-style overtravel guard. The O-rings remain the primary
-// retention method. This bridge sits above the thickening heart/vamp region
-// and normally does not touch the reed. If the reed is pushed too far toward
-// the protected tip end, a thicker section of cane reaches the fixed-height
-// bridge and stops further travel before the fragile tip reaches the end wall.
-tray_guard_fraction_open = 0.58;
-tray_guard_normal_clearance_open = 0.18;
-tray_guard_depth_open = 2.40;
-tray_guard_min_bridge_t_open = 0.70;
-tray_guard_tip_safety_open = 1.70;
-
-function tray_reed_local_y_at_fraction_open(fraction) =
-    -reed_length / 2 + reed_length * fraction;
-function tray_reed_thickness_at_fraction_open(fraction) =
-    let(y = tray_reed_local_y_at_fraction_open(fraction),
-        vamp_start = reed_length / 2 - reed_vamp_length)
-    y <= vamp_start
-        ? reed_max_h
-        : reed_tip_h + (reed_max_h - reed_tip_h) *
-          pow(max(0, 1 - (y - vamp_start) / reed_vamp_length), 1.55);
-function tray_guard_y_open() =
-    tray_reed_heel_y_open() + reed_length * tray_guard_fraction_open;
-function tray_guard_underside_z_open() =
-    tray_face_t_open() + tray_texture_h_open() +
-    tray_reed_thickness_at_fraction_open(tray_guard_fraction_open) +
-    tray_guard_normal_clearance_open;
-function tray_guard_top_z_open() =
-    tray_face_t_open() + tray_guide_h_open();
-function tray_guard_bridge_t_open() =
-    tray_guard_top_z_open() - tray_guard_underside_z_open();
 function tray_o_ring_cord_r_open() = elastic_band_d / 2;
 // Each guide wall gets a keyhole-style snap seat. The 2.0 mm silicone cord is
 // pressed through a slightly narrower 1.75 mm throat into a relaxed 2.24 mm
@@ -572,8 +537,8 @@ function tray_o_ring_cord_r_open() = elastic_band_d / 2;
 function tray_o_ring_snap_r_open() = tray_o_ring_cord_r_open() + 0.12;
 function tray_o_ring_throat_w_open() = elastic_band_d * 0.875;
 function tray_o_ring_snap_center_z_open() =
-    tray_face_t_open() + tray_guide_h_open() - 1.35;
-function tray_o_ring_wall_top_z_open() = tray_face_t_open() + tray_guide_h_open();
+    tray_face_t_open() + tray_guide_h - 1.35;
+function tray_o_ring_wall_top_z_open() = tray_face_t_open() + tray_guide_h;
 function tray_lane_window_start_y() = tray_support_split_y() - epsilon;
 function tray_lane_window_end_y() = tray_tip_stop_inner_y_open() + epsilon;
 function tray_guide_wall_start_y_open() = tray_slot_start_y_open() - epsilon;
@@ -617,9 +582,9 @@ module tray_guide_walls() {
         union() {
             for (i = [1 : tray_reeds_per_face - 1])
                 intersection() {
-                    linear_extrude(height = tray_guide_h_open() + tray_feature_fuse_overlap)
+                    linear_extrude(height = tray_guide_h + tray_feature_fuse_overlap)
                         tray_face_outline_2d();
-                    top_chamfered_extrude(tray_guide_h_open() + tray_feature_fuse_overlap,
+                    top_chamfered_extrude(tray_guide_h + tray_feature_fuse_overlap,
                                           tray_wall_top_chamfer)
                         translate([tray_guide_x_open(i), (start_y + end_y) / 2])
                             square([tray_guide_t_open(i), end_y - start_y], center = true);
@@ -635,9 +600,9 @@ module tray_outer_side_walls() {
         union() {
             for (x = [-1, 1])
                 intersection() {
-                    linear_extrude(height = tray_guide_h_open() + tray_feature_fuse_overlap)
+                    linear_extrude(height = tray_guide_h + tray_feature_fuse_overlap)
                         tray_face_outline_2d();
-                    top_chamfered_extrude(tray_guide_h_open() + tray_feature_fuse_overlap,
+                    top_chamfered_extrude(tray_guide_h + tray_feature_fuse_overlap,
                                           tray_wall_top_chamfer)
                         translate([x * (passage_edge + side_frame_w / 2), 0])
                             square([side_frame_w,
@@ -651,9 +616,9 @@ module tray_reed_tip_stop() {
 
     translate([0, 0, tray_face_t_open() - tray_feature_fuse_overlap])
         intersection() {
-            linear_extrude(height = tray_guide_h_open() + tray_feature_fuse_overlap)
+            linear_extrude(height = tray_guide_h + tray_feature_fuse_overlap)
                 tray_face_outline_2d();
-            top_chamfered_extrude(tray_guide_h_open() + tray_feature_fuse_overlap,
+            top_chamfered_extrude(tray_guide_h + tray_feature_fuse_overlap,
                                   tray_wall_top_chamfer)
                 translate([0, inner_y + tray_border_w_open() / 2 + epsilon])
                     square([tray_body_w_open() + 20,
@@ -665,7 +630,7 @@ module tray_magnet_apertures() {
     for (x = [-1, 1], y = [-1, 1])
         translate([x * tray_magnet_x_open(),
                    y * tray_magnet_y_open(),
-                   tray_face_t_open() + tray_guide_h_open() -
+                   tray_face_t_open() + tray_guide_h -
                    tray_magnet_h - magnet_h_clearance])
             magnet_pocket();
 }
@@ -679,7 +644,7 @@ module tray_lane_number_engraving(first_lane = 1) {
             translate([tray_lane_x_open(i),
                        tray_tip_stop_inner_y_open() +
                            tray_border_w_open() / 2,
-                       tray_face_t_open() + tray_guide_h_open() - lane_number_depth])
+                       tray_face_t_open() + tray_guide_h - lane_number_depth])
                 linear_extrude(height = lane_number_depth + epsilon)
                     text(str(i + first_lane),
                          size = lane_number_size,
@@ -714,26 +679,6 @@ module tray_breathing_texture() {
                         sphere(d = runner_w,
                                $fn = is_fast_mesh ? 14 :
                                      ($preview ? 20 : 36));
-}
-
-module tray_overtravel_guard() {
-    // One fixed-height bridge per lane. The bridge is deliberately shallow in
-    // Y so it behaves like a gauge: tip and thin vamp slide under freely, but
-    // the thicker heart/stock cannot be forced beyond the intended position.
-    // It is fused into the neighboring guide walls / side rails, with no moving
-    // parts and no contact at the reed tip.
-    bridge_t = tray_guard_bridge_t_open();
-    assert(bridge_t >= tray_guard_min_bridge_t_open,
-           str("Overtravel guard bridge is too thin: ", bridge_t, " mm"));
-
-    for (i = [0 : tray_reeds_per_face - 1])
-        translate([tray_lane_x_open(i),
-                   tray_guard_y_open(),
-                   tray_guard_underside_z_open()])
-            rounded_prism([reed_slot_clear_w + 0.30,
-                           tray_guard_depth_open,
-                           bridge_t],
-                          0.35);
 }
 
 module tray_o_ring_snap_notch(x_center, cut_w, y) {
@@ -795,7 +740,7 @@ module tray_o_ring_side_wrap_grooves_face() {
                        y,
                        -epsilon])
                 cylinder(r = r,
-                         h = tray_face_t_open() + tray_guide_h_open() + 2 * epsilon,
+                         h = tray_face_t_open() + tray_guide_h + 2 * epsilon,
                          $fn = is_fast_mesh ? 20 : ($preview ? 32 : 56));
     }
 }
@@ -808,7 +753,6 @@ module tray_face(first_lane = 1) {
             tray_outer_side_walls();
             tray_reed_tip_stop();
             tray_breathing_texture();
-            tray_overtravel_guard();
         }
         tray_magnet_apertures();
         tray_lane_number_engraving(first_lane);
@@ -816,16 +760,6 @@ module tray_face(first_lane = 1) {
         tray_o_ring_side_wrap_grooves_face();
     }
 }
-
-// The nominal reed is biased only by the O-rings; this guard is a backup.
-// Keep enough geometric tip room that the guard can engage before the tip can
-// be driven into the printed tip-protection wall.
-assert(tray_tip_stop_inner_y_open() -
-       (tray_reed_heel_y_open() + reed_length) >= 1.15,
-       "Nominal reed tip clearance is too small for the backup guard");
-assert(tray_guard_underside_z_open() >
-       tray_face_t_open() + tray_texture_h_open() + 0.20,
-       "Overtravel guard underside is too low for normal reed insertion");
 
 module tray_face_a() { tray_face(1); }
 module tray_face_b() { tray_face(tray_reeds_per_face + 1); }

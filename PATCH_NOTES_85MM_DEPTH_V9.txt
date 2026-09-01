@@ -1,0 +1,13 @@
+V9 85 mm depth compacting patch
+
+Changes:
+- Reduces active 10x10 reed tray depth from 82.40 mm to 76.10 mm.
+- Keeps full 67.50 mm reed length with ~1.20 mm longitudinal clearance at each end when centered.
+- Reduces folded Size 60 short-axis design footprint from 79.80 mm to 73.80 mm.
+- Reduces humidity-cover honeycomb rows from 8 to 7 to preserve a solid bridge at the semicircle finger notch.
+- Changes the O-ring target from 177 mm ID to 173 mm ID to maintain proper stretch on the shorter case perimeter.
+- Resulting main case body depth is 85.00 mm while width and height remain 209.25 mm and 22.10 mm.
+- No changes to latch plan position, hinge architecture, seam lowering, hygrometer, tray width/capacity, or total closed height.
+
+Validation:
+- `make check` passes all OpenSCAD views/parts.

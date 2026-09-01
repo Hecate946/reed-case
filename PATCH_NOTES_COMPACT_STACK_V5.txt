@@ -1,0 +1,16 @@
+Compact Size-60 stack v5
+
+Changes:
+- Added a true centered semicircular finger notch to the front edge of the Size-60 humidity-cover lid.
+- Reduced active 8-reed tray guide height from 4.20 mm to 3.70 mm.
+- Reduced active 8-reed tray face thickness from 1.65 mm to 1.30 mm.
+- Reduced Size-60 modeled compressed thickness from 5.40 mm to 5.10 mm.
+- Reduced humidity-cover thickness from 1.40 mm to 1.20 mm.
+- Reduced tray/cover vertical gap from 0.15 mm to 0.10 mm.
+- Reduced base floor from 2.80 mm to 2.50 mm and lid roof from 2.80 mm to 2.20 mm.
+- Reduced Size-60 planar clearance from 0.25 mm to 0.15 mm per side.
+- Reduced total closed case height to 22.10 mm while retaining clearance, latch, hinge, hygrometer, and continuous O-ring geometry.
+
+Validation:
+- Full OpenSCAD make check passed with no ERROR output.
+- CGAL STL exports passed for case_base, case_lid, humidity_cover, and tray.

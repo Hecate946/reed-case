@@ -1,0 +1,11 @@
+V6 compact-depth update
+- Keeps full 133.35 mm Size 60 long dimension.
+- Uses a 79.80 mm installed short-axis footprint by folding/tucking the flexible pouch corners.
+- Shortens active 8-reed tray depth from 93.00 mm to 82.40 mm.
+- Shortens outer case depth from 101.90 mm to 91.30 mm.
+- Case width remains 177.648 mm and closed height remains 22.10 mm.
+- Humidity bay short dimension is 80.10 mm including 0.15 mm clearance each side.
+- Honeycomb reduced from 9 to 8 rows to preserve edge/web strength.
+- Size 60 preview now represents the installed folded short-axis envelope.
+- O-ring updated to 157 mm ID; calculated installation stretch ~2.04%.
+- Full `make check` passes.

@@ -147,8 +147,8 @@ module tray_o_ring_placeholder() {
 module tray_with_reeds() {
     color(tray_white) tray();
 
-    // Show all ten reed positions on both faces of the 10x10 cartridge.
-    for (side = [-1, 1], i = [0 : tray_reeds_per_face - 1]) {
+    // Keep the test readable: show five of the ten slots on each face.
+    for (side = [-1, 1], i = [2 : 6]) {
         if (side > 0)
             translate([tray_lane_x_open(i), tray_reed_center_y_open(),
                        -tray_face_join_overlap_open() / 2 +
@@ -203,10 +203,13 @@ module seated_trays(show_contents = false) {
 }
 
 module humidity_bay_pack_positions() {
-    translate([v2_humidity_bay_x,
-               v2_humidity_bay_y,
-               v2_humidity_bay_floor_z])
-        children();
+    pocket_center_x = (v2_humidity_bay_pocket_w +
+                       v2_humidity_bay_divider_t) / 2;
+    for (sx = [-1, 1])
+        translate([v2_humidity_bay_x + sx * pocket_center_x,
+                   v2_humidity_bay_y,
+                   v2_humidity_bay_floor_z])
+            children();
 }
 
 module humidity_cover_installed_preview() {
@@ -218,51 +221,9 @@ module humidity_bay_with_packs(cover_installed = true, cover_lift = 0) {
         color([0.95, 0.95, 0.95])
             translate([0, 0, cover_lift]) humidity_cover();
 
-    // Preview the Size 60 in its installed, corner-tucked envelope. The
-    // long dimension remains full scale; only the short flexible dimension
-    // is represented at the folded design footprint.
     humidity_bay_pack_positions()
         color(pack_tan)
-            scale([1,
-                   v3_boveda_size_60_folded_d / boveda_size_60_d,
-                   v3_boveda_size_60_compressed_h /
-                   boveda_size_60_h_preview])
-                boveda_size_60_placeholder();
-}
-
-module hygrometer_placeholder() {
-    // Preview-only model of the exact compact digital unit shown by the user:
-    // 1.87 x 1.12 x 0.57 in (47.50 x 28.45 x 14.48 mm). The physical unit is
-    // rotated 90 degrees in plan to make the side bay narrow. Its display is
-    // therefore intentionally readable from the left side of the open case.
-    translate([v3_hygrometer_x, v3_hygrometer_y, v2_base_floor_t]) {
-        color([0.08, 0.08, 0.085])
-            rounded_prism([v3_hygrometer_body_w,
-                           v3_hygrometer_body_d,
-                           v3_hygrometer_depth], 1.55);
-
-        // Slightly raised black face bezel.
-        color([0.045, 0.045, 0.05])
-            translate([0, 0, v3_hygrometer_depth])
-                rounded_prism([v3_hygrometer_body_w - 1.4,
-                               v3_hygrometer_body_d - 1.8,
-                               0.42], 1.15);
-
-        // LCD window and simple reading. Rotate the graphics to match the
-        // device's 90-degree installation rather than showing it backwards.
-        color([0.78, 0.81, 0.76])
-            translate([0, 0, v3_hygrometer_depth + 0.43])
-                rounded_prism([v3_hygrometer_body_w - 4.0,
-                               v3_hygrometer_body_d - 6.0,
-                               0.18], 0.7);
-        color([0.05, 0.05, 0.05])
-            translate([0, 0, v3_hygrometer_depth + 0.62])
-                rotate([0, 0, 90])
-                    linear_extrude(height = 0.08)
-                        text("64%", size = 6.1,
-                             halign = "center", valign = "center",
-                             font = "Liberation Sans:style=Bold");
-    }
+            translate([0, 0, 0]) boveda_size_8_placeholder(false);
 }
 
 module lid_closed_position() {
@@ -306,7 +267,6 @@ module bottom_case_view() {
         color(case_teal) case_base_body();
         color(hardware_silver) installed_alise_main_catch_preview();
         humidity_bay_with_packs(true);
-        hygrometer_placeholder();
     }
 }
 
@@ -319,7 +279,6 @@ module case_closed_view(show_trays = true) {
     color(case_teal) case_base();
     color(hardware_silver) installed_alise_main_catch_preview();
     humidity_bay_with_packs(true);
-    hygrometer_placeholder();
     if (show_trays) seated_trays(false);
     lid_closed_position() color(case_teal) case_lid();
     lid_closed_position() color(hardware_silver) installed_alise_strike_preview();
@@ -330,7 +289,6 @@ module case_open_view(show_contents = true) {
     color(case_teal) case_base();
     color(hardware_silver) installed_alise_main_catch_preview();
     humidity_bay_with_packs(true);
-    hygrometer_placeholder();
     seated_trays(show_contents);
     lid_open_position() color(case_teal) case_lid();
     lid_open_position() color(hardware_silver) installed_alise_strike_preview();
@@ -342,7 +300,6 @@ module case_exploded_view(show_contents = false) {
     color(hardware_silver) installed_alise_main_catch_preview();
 
     humidity_bay_with_packs(false);
-    hygrometer_placeholder();
     color([0.95, 0.95, 0.95])
         translate([0, 0, exploded_gap / 2]) humidity_cover();
 
@@ -365,14 +322,12 @@ module bottom_case_with_trays_view() {
     color(case_teal) case_base();
     color(hardware_silver) installed_alise_main_catch_preview();
     humidity_bay_with_packs(true);
-    hygrometer_placeholder();
     seated_trays(false);
 }
 
 module humidity_cassette_view() {
     color([case_teal[0], case_teal[1], case_teal[2], 0.22]) case_base();
     humidity_bay_with_packs(false);
-    hygrometer_placeholder();
     color([0.95, 0.95, 0.95])
         translate([0, 0, 8]) humidity_cover();
 }
@@ -386,20 +341,6 @@ module humidity_bay_open_view() {
 module humidity_bay_closed_view() {
     color([case_teal[0], case_teal[1], case_teal[2], 0.22]) case_base();
     humidity_bay_with_packs(true);
-}
-
-module size60_hygrometer_layout_view() {
-    color(case_teal) case_base();
-    color(hardware_silver) installed_alise_main_catch_preview();
-    humidity_bay_with_packs(true);
-    hygrometer_placeholder();
-    seated_trays(true);
-}
-
-module size60_humidity_bay_view() {
-    color([case_teal[0], case_teal[1], case_teal[2], 0.22]) case_base();
-    humidity_bay_with_packs(false);
-    hygrometer_placeholder();
 }
 
 module lid_seal_view() {
@@ -428,8 +369,6 @@ module render_selected(which) {
     else if (which == "roller_catch_hardware") roller_catch_hardware_view();
     else if (which == "alise_main_catch") alise_main_catch_preview();
     else if (which == "alise_strike") alise_strike_preview();
-    else if (which == "size60_hygrometer_layout") size60_hygrometer_layout_view();
-    else if (which == "size60_humidity_bay") size60_humidity_bay_view();
     else if (which == "lid_seal") lid_seal_view();
     else if (which == "case_base") case_base();
     else if (which == "case_lid") case_lid();

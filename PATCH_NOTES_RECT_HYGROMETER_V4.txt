@@ -1,0 +1,14 @@
+Compact Size-60 + rectangular digital hygrometer v4
+
+- Replaces the 50 x 15 mm round analog gauge with the exact device envelope
+  shown by the user: 1.87 x 1.12 x 0.57 in = 47.50 x 28.45 x 14.48 mm.
+- Rotates the device in plan so only its 28.45 mm side consumes case width.
+- Flips the active layout so the hygrometer occupies the left-side bay and the
+  8-reed-per-face / Boveda Size 60 stack occupies the opposite side.
+- Keeps the centralized Alise latch, Size 60 bay, reed tray structure, hinge,
+  and continuous perimeter O-ring architecture.
+- Narrows the outer case from about 199.6 mm to about 177.65 mm while keeping
+  case depth about 101.9 mm.
+- Lowers total closed height slightly to 25.20 mm.
+- Uses a 164 x 2 mm O-ring model to keep stretch in the intended range.
+- Full `make check` and CGAL case base/lid export passed.

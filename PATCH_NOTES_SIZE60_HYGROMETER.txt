@@ -1,0 +1,15 @@
+NEW ACTIVE DESIGN: compact Size 60 + side hygrometer
+
+Frozen previous design:
+  frozen/compact_size8_20260831/
+
+Active changes:
+- 8 reeds per face (16 total), same double-sided H946 tray construction
+- one snug Boveda Size 60 bay directly below the reed tray
+- 50 x 15 mm hygrometer envelope in a 1.4 mm thin annular cradle on the left
+- same centered Alise CA100S-4P latch architecture and rounded case language
+- total height targeted at 25.0 mm
+- base magnets disabled in this compact variant; tray is located by a close XY well and closed lid
+- continuous perimeter O-ring retained
+
+Prototype hygrometer fit must be tuned after measuring the delivered gauge with calipers.

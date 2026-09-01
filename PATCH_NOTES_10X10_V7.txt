@@ -1,0 +1,6 @@
+10x10 reed tray update (v7)
+
+- Active double-sided tray increased from 8 reeds per face to 10 reeds per face (20 total).
+- Existing compact short-depth geometry, Size 60 bay, left digital hygrometer, centered latch, hinge, O-ring seal, and tray thickness are unchanged.
+- Case width expands only as required by the two additional reed lanes per face.
+- Archived/frozen designs are untouched.

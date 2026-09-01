@@ -143,132 +143,76 @@ tray_magnet_y = tray_d / 2 - tray_magnet_edge_inset;
 tray_magnet_x = (tray_body_w - tray_border_w) / 2;
 
 // ---------------------------------------------------------------------------
-// CASE — COMPACT SIZE-60 + SIDE HYGROMETER ARCHITECTURE
+// CASE
 // ---------------------------------------------------------------------------
-// The previous compact 2x Size-8 design is frozen under
-// frozen/compact_size8_20260831/.  The active design keeps the same rounded
-// shell language and centered Alise latch, but uses an 10-reed-per-face tray on
-// the right, one Size 60 pack directly below it, and a thin hygrometer cradle
-// on the left. The v4 revision uses the much smaller rectangular digital gauge.
-v2_tray_xy_clearance = 0.25;
-v2_wall = 4.20;
+
+// Ultra-compact enclosure for one full-width H946 10-reed-per-face cartridge.
+// The main shell is derived directly from the cartridge registration envelope:
+// there is no decorative/service margin around the tray. The only extra
+// footprint is the centered local latch housing at the front and the hinge at
+// the rear. This is the Option-C architecture.
+v2_tray_xy_clearance = 0.35;
+v2_wall = 4.60;
+v2_case_w = tray_body_w_open() + 2 * v2_tray_xy_clearance + 2 * v2_wall;
+v2_case_d = tray_d_open() + 2 * v2_tray_xy_clearance + 2 * v2_wall;
+v2_case_h = 31.50;
+v2_base_h = 16.25;
+v2_lid_h = v2_case_h - v2_base_h;
 v2_corner_r = 8.00;
-v2_base_floor_t = 2.50;
-v2_lid_roof_t = 2.20;
+v2_base_floor_t = 4.20;
+v2_lid_roof_t = 3.40;
 
-// Compact rectangular digital hygrometer shown in the selected Amazon listing.
-// Seller image dimensions: 1.87 x 1.12 x 0.57 in = 47.50 x 28.45 x 14.48 mm.
-// It is rotated 90 degrees in plan so its 28.45 mm dimension consumes case
-// width while the 47.50 mm dimension runs front-to-back. This is what makes
-// the left-side instrument bay dramatically narrower than the old 50 mm round
-// analog-gauge bay. The LCD faces upward and is oriented to read from the left
-// side of the open case rather than appearing backwards.
-v3_hygrometer_body_w = 28.448;
-v3_hygrometer_body_d = 47.498;
-v3_hygrometer_depth = 14.478;
-v3_hygrometer_xy_clearance = 0.25;
-v3_hygrometer_ring_t = 1.20;
-v3_hygrometer_ring_h = 14.70;
-v3_hygrometer_corner_r = 1.80;
-v3_hygrometer_outer_w = v3_hygrometer_body_w +
-                         2 * (v3_hygrometer_xy_clearance +
-                              v3_hygrometer_ring_t);
-v3_hygrometer_outer_d = v3_hygrometer_body_d +
-                         2 * (v3_hygrometer_xy_clearance +
-                              v3_hygrometer_ring_t);
-v3_hygrometer_tray_gap = 0.80;
-
-// Slim active 10-reed cartridge. The archived Behn geometry keeps its original
-// dimensions; only the current open 10-reed tray uses these reduced heights.
-// 3.70 mm guide height still clears a 3.05 mm reed plus the 0.55 mm support
-// rail, while 1.30 mm face sheets fuse into a 2.48 mm central spine.
-function tray_guide_h_open() = 3.70;
-function tray_face_t_compact_open() = 1.30;
-
-// 10-reed tray registration envelope. V9 keeps the full 10-per-face width
-// while reducing front-to-back depth to the practical minimum around a
-// 67.5 mm clarinet reed and the aggressively corner-folded Size 60 below.
-v2_tray_recess_depth = 0.45;
+// One centered cartridge-registration well. Magnets retain the cartridge;
+// the shallow well only locates it in X/Y and prevents lateral sliding.
+v2_tray_recess_depth = 0.60;
 v2_tray_recess_w = tray_body_w_open() + 2 * v2_tray_xy_clearance;
 v2_tray_recess_d = tray_d_open() + 2 * v2_tray_xy_clearance;
 v2_tray_recess_r = tray_body_corner_r_open() + v2_tray_xy_clearance;
-
-// Pack the left hygrometer and right reed/Boveda stack directly against each
-// other. The interior width is therefore exactly the two functional envelopes
-// plus 0.8 mm assembly separation—no decorative side bay.
-v2_inner_w = v3_hygrometer_outer_w + v3_hygrometer_tray_gap +
-             v2_tray_recess_w;
-v2_inner_d = max(v2_tray_recess_d, v3_hygrometer_outer_d);
-v2_case_w = v2_inner_w + 2 * v2_wall;
-v2_case_d = v2_inner_d + 2 * v2_wall;
-
-// In the rendered top view positive X appears on the user's left, so put the
-// digital hygrometer there and the reed/Boveda stack on the right.
-v3_hygrometer_x = v2_inner_w / 2 - v3_hygrometer_outer_w / 2;
-v3_hygrometer_y = 0;
-v2_tray_x = -v2_inner_w / 2 + v2_tray_recess_w / 2;
+v2_tray_x = 0;
+// Keep the cartridge exactly centered in the enclosure. The compact front
+// purchased roller catch now lives entirely in the symmetric front service margin.
 v2_tray_y = 0;
+v2_inner_w = v2_case_w - 2 * v2_wall;
+v2_inner_d = v2_case_d - 2 * v2_wall;
+v2_side_margin = (v2_inner_w - v2_tray_recess_w) / 2;
+v2_front_margin = v2_inner_d / 2 -
+                  (v2_tray_y + v2_tray_recess_d / 2);
+v2_back_margin = v2_inner_d / 2 +
+                 v2_tray_y - v2_tray_recess_d / 2;
 
-// Lower the shell seam around the functional stack so the reed cartridge sits
-// visibly proud of the bottom-case rim. This creates a clean lateral removal
-// path at the reed heels: the user can slide a reed out without the base wall
-// acting as a vertical fence. Total closed height is unchanged; the removed
-// base-wall height is transferred directly to the lid skirt.
-v2_case_h = 22.10;
-v2_seam_lowering = 1.75;
-v2_base_h_nominal = v2_base_floor_t + v3_hygrometer_depth + 0.35;
-v2_base_h = v2_base_h_nominal - v2_seam_lowering;
-v2_lid_h = v2_case_h - v2_base_h;
-
-v2_side_margin = 0;
-v2_front_margin = (v2_inner_d - v2_tray_recess_d) / 2;
-v2_back_margin = v2_front_margin;
-
-// No base magnets in this ultra-compact stack: a close XY registration well
-// and the closed lid locate the cartridge.  Keeping the old tray magnet
-// pockets in the cartridge itself preserves backwards compatibility.
+// Four D4x2 magnets under the single cartridge. The base floor is deliberately
+// thick enough to leave >1 mm of material below these pockets.
 v2_floor_magnet_depth = tray_magnet_h + magnet_h_clearance;
-v3_base_tray_magnets_enable = false;
+
 
 // ---------------------------------------------------------------------------
-// ONE BOVEDA SIZE 60 BAY DIRECTLY UNDER THE 10-REED TRAY
+// INTEGRATED HUMIDITY BAY + VENTED DROP-IN LID (2 x Boveda Size 8)
 // ---------------------------------------------------------------------------
-// The flexible pack is allowed a deliberately snug planar fit and a light
-// axial squeeze.  This removes the old two-cell divider and nearly all dead
-// space between the humidity pack, its ventilated cover, and the reed tray.
+// Instead of a full removable cassette, the case now uses a shallow humidity
+// bay built directly into the base floor. Two Size 8 packs sit in divided
+// wells and a thin removable perforated lid simply rests on a surrounding
+// ledge above them.
 v2_humidity_bay_corner_r = 3.00;
-v2_humidity_bay_pack_clearance = 0.15;
-v2_humidity_bay_divider_t = 0;
-// The Size 60 keeps its full 133.35 mm long dimension. Only the flexible
-// 88.90 mm short dimension is tucked inward by folding the four pouch
-// corners. V9 uses a 73.80 mm design footprint so the full case can reach
-// roughly 85 mm front-to-back. This is an intentionally aggressive fold-fit;
-// verify the exact Size 60 packs before freezing production tooling.
-v3_boveda_size_60_folded_d = 73.80;
-v2_humidity_bay_pocket_w = boveda_size_60_w +
-                            2 * v2_humidity_bay_pack_clearance;
-v2_humidity_bay_pocket_d = v3_boveda_size_60_folded_d +
-                            2 * v2_humidity_bay_pack_clearance;
-v2_humidity_bay_inner_w = v2_humidity_bay_pocket_w;
+v2_humidity_bay_pack_clearance = 0.80;
+v2_humidity_bay_divider_t = 2.40;
+v2_humidity_bay_pocket_w =
+    boveda_w + 2 * v2_humidity_bay_pack_clearance;
+v2_humidity_bay_pocket_d =
+    boveda_d + 2 * v2_humidity_bay_pack_clearance;
+v2_humidity_bay_inner_w =
+    2 * v2_humidity_bay_pocket_w + v2_humidity_bay_divider_t;
 v2_humidity_bay_inner_d = v2_humidity_bay_pocket_d;
-v2_humidity_bay_opening_w = v2_humidity_bay_inner_w;
-v2_humidity_bay_opening_d = v2_humidity_bay_inner_d;
-v2_humidity_bay_x = v2_tray_x;
-v2_humidity_bay_y = v2_tray_y;
+v2_humidity_bay_opening_w = v2_humidity_bay_inner_w + 5.10;
+v2_humidity_bay_opening_d = v2_humidity_bay_inner_d + 5.10;
+v2_humidity_bay_x = 0;
+v2_humidity_bay_y = 0;
 v2_humidity_bay_floor_z = v2_base_floor_t;
-v3_boveda_size_60_compressed_h = 5.10;
-v2_humidity_bay_depth = v3_boveda_size_60_compressed_h;
+v2_humidity_bay_depth = 6.60;
 v2_humidity_bay_top_z = v2_humidity_bay_floor_z + v2_humidity_bay_depth;
 
-// Ultra-thin perforated cover becomes the immediate support surface for the
-// reed cartridge. The Size-60 pack is flexible, so the cavity is intentionally
-// snug and the tray sits only 0.10 mm above the cover.
-v2_humidity_cover_t = 1.20;
-v2_humidity_cover_clearance = 0.15;
-v2_humidity_cover_seat_w = 0.90;
-v2_humidity_cover_seat_depth = 0.65;
-v2_humidity_cover_z = v2_humidity_bay_top_z;
-v2_tray_bottom_z = v2_humidity_cover_z + v2_humidity_cover_t + 0.10;
+// Tray-support frame around the bay. The reed cartridge lands on this frame,
+// leaving the center open for the humidity bay cover.
+v2_tray_bottom_z = v2_humidity_bay_top_z + 0.20;
 v2_tray_support_h = v2_tray_bottom_z - v2_base_floor_t;
 v2_tray_support_outer_w = v2_tray_recess_w;
 v2_tray_support_outer_d = v2_tray_recess_d;
@@ -277,36 +221,41 @@ v2_tray_support_inner_w = v2_humidity_bay_opening_w;
 v2_tray_support_inner_d = v2_humidity_bay_opening_d;
 v2_tray_support_inner_r = v2_humidity_bay_corner_r;
 
-v2_humidity_cover_w = v2_tray_support_inner_w -
-                       2 * v2_humidity_cover_clearance;
-v2_humidity_cover_d = v2_tray_support_inner_d -
-                       2 * v2_humidity_cover_clearance;
-v2_humidity_cover_corner_r = max(v2_tray_support_inner_r -
-                                  v2_humidity_cover_clearance, 0.8);
-// True semicircular finger notch centered on the front edge. The circle
-// center lies on the cover edge, so exactly half the opening is removed and
-// the honeycomb remains clear of the grip.
-v2_humidity_cover_finger_r = 6.00;
-v2_humidity_cover_finger_inset = 0.00;
+// Removable vented cover.
+v2_humidity_cover_t = 1.80;
+v2_humidity_cover_clearance = 0.22;
+v2_humidity_cover_seat_w = 1.30;
+v2_humidity_cover_seat_depth = 0.95;
+v2_humidity_cover_w = v2_tray_support_inner_w - 2 * v2_humidity_cover_clearance;
+v2_humidity_cover_d = v2_tray_support_inner_d - 2 * v2_humidity_cover_clearance;
+v2_humidity_cover_corner_r = max(v2_tray_support_inner_r - v2_humidity_cover_clearance, 0.8);
+v2_humidity_cover_z = v2_tray_bottom_z - v2_humidity_cover_t;
+v2_humidity_cover_finger_r = 7.00;
+v2_humidity_cover_finger_inset = 0.10;
 
-// Dense but structurally continuous honeycomb sized for the shortened Size 60
-// footprint. V9 uses seven rows so the front semicircular finger notch keeps
-// a solid bridge even after the additional depth reduction.
-v2_humidity_cover_vent_r = 2.70;
-v2_humidity_cover_vent_cols = 16;
+// Staggered honeycomb ventilation field. The smaller repeated openings leave
+// a continuous load-sharing web instead of long, flexible slats while still
+// keeping roughly half of the center area open to airflow.
+v2_humidity_cover_vent_r = 3.35;
+// Odd-count rows have 15 cells; the rows between them have 16. Centering
+// each row independently gives the lattice exact left/right symmetry while
+// the odd row count mirrors the same pattern front-to-back.
+v2_humidity_cover_vent_cols = 15;
 v2_humidity_cover_vent_rows = 7;
-v2_humidity_cover_vent_pitch_x = 7.20;
-v2_humidity_cover_vent_pitch_y = 8.00;
-v2_humidity_cover_vent_inset = 4.00;
+v2_humidity_cover_vent_pitch_x = 8.60;
+v2_humidity_cover_vent_pitch_y = 7.30;
+v2_humidity_cover_vent_inset = 6.00;
 
+// No cover magnets for now: the lid simply sits on the ledge and lifts out
+// by the semicircular finger notch. Keep these zeroed placeholders so the
+// geometry can evolve later without breaking old references.
 v2_humidity_cover_magnet_d = 0;
 v2_humidity_cover_magnet_h = 0;
 v2_humidity_cover_magnet_edge_inset_x = 0;
 v2_humidity_cover_magnet_edge_inset_y = 0;
 v2_humidity_cover_magnet_x = 0;
 v2_humidity_cover_magnet_y = 0;
-
-// Conventional alternating-knuckle hinge around the same replaceable 2 mm pin.
+// Conventional alternating-knuckle hinge around a replaceable 2 mm metal pin.
 v2_hinge_pin_d = 2.00;
 v2_hinge_bore_d = 2.30;
 v2_hinge_outer_d = 6.00;
@@ -387,7 +336,7 @@ roller_catch_rear_skin = 2.00;
 roller_catch_front_skin = 2.00;
 roller_catch_seal_bridge = 0.60;
 roller_catch_cleared_d = alise_catch_main_w + 2 * roller_catch_xy_clearance;
-roller_catch_gasket_outer_land = 1.20;
+roller_catch_gasket_outer_land = 2.25;
 roller_catch_gasket_outer_y = v2_case_d / 2 - roller_catch_gasket_outer_land;
 roller_catch_pocket_back_y = roller_catch_gasket_outer_y +
                              roller_catch_seal_bridge;
@@ -449,17 +398,17 @@ roller_catch_lid_boss_h = v2_lid_h;
 roller_catch_strike_seat_depth = alise_catch_strike_plate_t_preview + 0.05;
 roller_catch_strike_base_z = v2_lid_h - alise_catch_strike_plate_t_preview;
 
-// 2 mm silicone O-ring prototype seal sized for the wider 10x10 enclosure. The compact main shell keeps one
+// 2 mm silicone O-ring prototype seal. The compact main shell keeps one
 // uninterrupted rectangular gland. For the further-rearward latch position,
 // the gland is shifted another 0.45 mm inward and tightened to a 2.15 mm wide
 // x 1.65 mm deep static-face groove. This keeps the seal continuous while
 // leaving 0.60 mm of solid bridge to the catch pocket and 0.20 mm of inner
-// wall land beside the tray. A 164 mm ID ring keeps installation stretch in
-// the preferred low-single-digit range after the narrower v4 case.
-v2_gasket_id = 173.0;
+// wall land beside the tray. A 155 mm ID ring keeps installation stretch in
+// the preferred low-single-digit range after the smaller seal path.
+v2_gasket_id = 155.0;
 v2_gasket_d = 2.00;
-v2_gasket_groove_w = 2.20;
-v2_gasket_groove_d = 1.55;
+v2_gasket_groove_w = 2.15;
+v2_gasket_groove_d = 1.65;
 v2_gasket_outer_land = roller_catch_gasket_outer_land;
 v2_gasket_path_w = v2_case_w - 2 * v2_gasket_outer_land -
                    v2_gasket_groove_w;
@@ -497,10 +446,6 @@ v2_tray_bottom_offset = tray_face_t_open() + tray_guide_h -
                         tray_face_join_overlap_open() / 2;
 v2_tray_seated_z = v2_tray_bottom_z + v2_tray_bottom_offset;
 v2_tray_top_z = v2_tray_bottom_z + tray_total_h_open();
-// Amount of the cartridge standing above the bottom-case seam. A few
-// millimetres is intentional: it gives the reed heels a clear sideways exit
-// while the taller lid still fully encloses the tray when shut.
-v2_tray_exposure_above_base = v2_tray_top_z - v2_base_h;
 v2_lid_inside_roof_z = v2_case_h - v2_lid_roof_t;
 
 // ---------------------------------------------------------------------------
@@ -538,31 +483,25 @@ assert(abs(v2_front_margin) <= 0.01 && abs(v2_back_margin) <= 0.01,
        "Compact case should have no front/back service margin beyond tray clearance");
 // The old full-floor Boveda Size 60 scale preview intentionally no longer
 // fits the ultra-compact shell; the integrated 2 x Size 8 bay is unchanged.
-assert(v2_humidity_bay_opening_w <= v2_tray_support_outer_w - 2.20,
-       "Size 60 bay leaves too little side support under the reed tray");
-assert(v2_humidity_bay_opening_d <= v2_tray_support_outer_d - 2.20,
-       "Size 60 bay leaves too little front/back support under the reed tray");
+assert(v2_humidity_bay_opening_w <= v2_tray_support_outer_w - 8.00,
+       "Humidity bay opening is too wide for the tray support frame");
+assert(v2_humidity_bay_opening_d <= v2_tray_support_outer_d - 8.00,
+       "Humidity bay opening is too deep for the tray support frame");
 assert(v2_humidity_bay_depth < v2_tray_bottom_z - v2_base_floor_t + 0.01,
        "Humidity bay depth does not fit below the raised cartridge");
-assert(v2_tray_support_inner_w < v2_tray_support_outer_w - 2.20,
+assert(v2_tray_support_inner_w < v2_tray_support_outer_w - 4.00,
        "Tray support frame side rails are too thin");
-assert(v2_tray_support_inner_d < v2_tray_support_outer_d - 2.20,
+assert(v2_tray_support_inner_d < v2_tray_support_outer_d - 4.00,
        "Tray support frame front/back rails are too thin");
-assert(!v3_base_tray_magnets_enable ||
-       v2_base_floor_t - v2_tray_recess_depth - v2_floor_magnet_depth >= 1.00,
+assert(v2_base_floor_t - v2_tray_recess_depth -
+       v2_floor_magnet_depth >= 1.00,
        "Magnet pockets leave less than 1 mm of base-floor skin");
 assert(v2_tray_top_z + 1.00 <= v2_lid_inside_roof_z,
        "Lid does not clear the seated trays");
-assert(v2_tray_exposure_above_base >= 2.75,
-       "Reed cartridge does not stand proud enough of the base rim for easy lateral removal");
-assert(v2_tray_exposure_above_base <= 4.00,
-       "Reed cartridge stands too far above the base rim and loses side protection");
-assert(v2_base_h >= v2_base_floor_t + alise_catch_main_h + 1.25,
-       "Lowered base seam leaves too little vertical structure for the main latch");
 assert(v2_gasket_groove_w + v2_gasket_outer_land <= v2_wall,
        "Gasket groove does not fit inside the rim");
 assert(v2_gasket_stretch >= 0.01 && v2_gasket_stretch <= 0.03,
-       str("2x173 O-ring stretch is ", v2_gasket_stretch * 100,
+       str("2x155 O-ring stretch is ", v2_gasket_stretch * 100,
            "% and should stay between 1% and 3%"));
 assert(v2_hinge_bore_d > v2_hinge_pin_d,
        "Hinge needs positive pin clearance");

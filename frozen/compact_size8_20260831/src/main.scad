@@ -5,7 +5,7 @@
 */
 
 mesh_profile = "fine"; // "prototype" or "fine"
-view = "humidity_bay_closed"; // "case_open", "case_closed", "case_exploded", "case_closed_front", "roller_catch_mechanism", "roller_catch_hardware", "bottom_case", "bottom_case_shell", "humidity_bay_open", "humidity_bay_closed", "tray", "tray_test", "print_layout"
+view = "bottom_case"; // "case_open", "case_closed", "case_exploded", "case_closed_front", "roller_catch_mechanism", "roller_catch_hardware", "bottom_case", "bottom_case_shell", "humidity_bay_open", "humidity_bay_closed", "tray", "tray_test", "print_layout"
 
 // Useful views:
 // view = "case_open";
@@ -14,7 +14,7 @@ view = "humidity_bay_closed"; // "case_open", "case_closed", "case_exploded", "c
 // view = "case_closed_front";
 // view = "roller_catch_mechanism";
 // view = "roller_catch_hardware";
-// view = "size60_hygrometer_layout";
+// view = "bottom_case";
 // view = "bottom_case_shell";
 // view = "humidity_bay_open";
 // view = "humidity_bay_closed";

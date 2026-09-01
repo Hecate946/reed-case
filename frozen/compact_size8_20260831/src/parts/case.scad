@@ -55,14 +55,12 @@ module v2_tray_support_frame() {
 }
 
 module v2_floor_hardware_pockets() {
-    if (v3_base_tray_magnets_enable) {
-        pocket_z = v2_tray_bottom_z - v2_floor_magnet_depth;
-        for (sx = [-1, 1], sy = [-1, 1])
-            translate([v2_tray_x + sx * tray_magnet_x_open(),
-                       v2_tray_y + sy * tray_magnet_y_open(),
-                       pocket_z])
-                magnet_pocket();
-    }
+    pocket_z = v2_tray_bottom_z - v2_floor_magnet_depth;
+    for (sx = [-1, 1], sy = [-1, 1])
+        translate([v2_tray_x + sx * tray_magnet_x_open(),
+                   v2_tray_y + sy * tray_magnet_y_open(),
+                   pocket_z])
+            magnet_pocket();
 }
 
 module v2_humidity_cover_base_pockets() {
@@ -138,29 +136,6 @@ module v2_lid_engraving_cut() {
                          valign = "baseline");
 }
 
-
-module v3_hygrometer_enclosure() {
-    // Compact rectangular retaining ring for the exact 47.50 x 28.45 x
-    // 14.48 mm digital hygrometer envelope. The device is rotated so its
-    // short dimension consumes case width. The cradle is open at the top and
-    // never cuts the airtight case floor.
-    translate([v3_hygrometer_x, v3_hygrometer_y, v2_base_floor_t])
-        difference() {
-            rounded_prism([v3_hygrometer_outer_w,
-                           v3_hygrometer_outer_d,
-                           v3_hygrometer_ring_h],
-                          v3_hygrometer_corner_r);
-            translate([0, 0, -epsilon])
-                rounded_prism([v3_hygrometer_body_w +
-                               2 * v3_hygrometer_xy_clearance,
-                               v3_hygrometer_body_d +
-                               2 * v3_hygrometer_xy_clearance,
-                               v3_hygrometer_ring_h + 2 * epsilon],
-                              max(v3_hygrometer_corner_r -
-                                  v3_hygrometer_ring_t, 0.6));
-        }
-}
-
 module case_base_body() {
     difference() {
         union() {
@@ -168,7 +143,6 @@ module case_base_body() {
             v2_base_hinge();
             v2_tray_support_frame();
             installed_humidity_bay();
-            v3_hygrometer_enclosure();
             roller_catch_base_boss();
         }
 
@@ -224,7 +198,11 @@ module humidity_bay_finger_scoops() {
 }
 
 module humidity_bay_geometry() {
-    // One uninterrupted Size 60 pocket; no center divider.
+    // Center divider only; perimeter walls are provided by the tray support frame.
+    difference() {
+        humidity_bay_divider_wall();
+        // nothing
+    }
 }
 
 module humidity_cover_seat_ring() {
@@ -257,16 +235,16 @@ module humidity_cover_vents_2d() {
                      v2_humidity_cover_vent_r;
     vent_limit_x = v2_humidity_cover_w / 2 - v2_humidity_cover_vent_inset;
     vent_limit_y = v2_humidity_cover_d / 2 - v2_humidity_cover_vent_inset;
+    finger_inner_y = v2_humidity_cover_d / 2 -
+                     v2_humidity_cover_finger_inset -
+                     v2_humidity_cover_finger_r;
 
     assert(pattern_half_w <= vent_limit_x,
            "Humidity-cover honeycomb is too wide and would clip at the ends");
-    finger_inner_y = v2_humidity_cover_d / 2 -
-                     v2_humidity_cover_finger_r;
-
     assert(pattern_half_d <= vent_limit_y,
            "Humidity-cover honeycomb is too deep and would clip at the edges");
     assert(pattern_half_d + 1.50 <= finger_inner_y,
-           "Humidity-cover honeycomb is too close to the semicircle finger notch");
+           "Humidity-cover honeycomb is too close to the finger notch");
 
     union()
         for (row = [0 : v2_humidity_cover_vent_rows - 1]) {
@@ -297,9 +275,7 @@ module humidity_cover() {
             linear_extrude(height = v2_humidity_cover_t + 2 * epsilon)
                 humidity_cover_vents_2d();
 
-        // True semicircular finger notch centered on the front edge.
-        // Keeping the circle center on the boundary gives a clean half-round
-        // pull point without sacrificing unnecessary cover area.
+        // Semicircular finger hole at the front edge.
         translate([0,
                    v2_humidity_cover_d / 2 - v2_humidity_cover_finger_inset,
                    v2_humidity_cover_z - epsilon])
